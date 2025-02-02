@@ -10,6 +10,8 @@ services:
       - ./prometheus:/etc/prometheus
     ports:
       - "9090:9090"
+    networks:
+      - monitoring
     restart: unless-stopped
 
   grafana:
@@ -20,4 +22,10 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=changeme
     ports:
       - "3000:3000"
+    networks:
+      - monitoring
     restart: unless-stopped
+
+networks:
+  monitoring:
+    driver: bridge
