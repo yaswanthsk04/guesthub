@@ -27,9 +27,9 @@ opkg install curl wget conntrack node-exporter
 
 # Download configuration files from GitHub
 echo "Downloading configuration files..."
-wget https://github.com/yaswanthsk04/guesthub_v0.1.0/blob/main/docker-compose.txt
-wget https://github.com/yaswanthsk04/guesthub_v0.1.0/blob/main/prometheus-config.txt -O prometheus/prometheus.yml
-wget https://github.com/yaswanthsk04/guesthub_v0.1.0/blob/main/metrics-collector.sh -O /usr/local/bin/collect_client_metrics.sh
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/main/docker-compose.txt -O docker-compose.yml
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/main/prometheus-config.txt -O prometheus/prometheus.yml
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/main/metrics-collector.sh -O /usr/local/bin/collect_client_metrics.sh
 
 # Set up node_exporter service
 echo "Configuring node_exporter..."
