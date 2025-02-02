@@ -3,6 +3,16 @@
 # OpenWrt Network Monitoring Setup Script
 # This script sets up Prometheus, Grafana, and node_exporter for OpenWrt network monitoring
 
+echo "Welcome to the installation of Gesthub v0.1.0"
+
+echo "Installing necessary packages"
+
+opkg update
+opkg install 
+opkg install git git-http curl bash ca-bundle docker docker-compose dockerd nano
+service dockerd enable
+service dockerd start
+
 echo "Starting OpenWrt monitoring setup..."
 
 # Create directory structure
@@ -13,7 +23,6 @@ mkdir -p /var/lib/node_exporter/textfile_collector
 
 # Install required packages
 echo "Installing required packages..."
-opkg update
 opkg install curl wget conntrack node-exporter
 
 # Download configuration files from GitHub
