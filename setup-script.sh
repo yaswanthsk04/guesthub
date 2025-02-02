@@ -20,6 +20,7 @@ mkdir -p /usr/local/monitoring
 cd /usr/local/monitoring
 mkdir -p prometheus
 mkdir -p /var/lib/node_exporter/textfile_collector
+mkdir -p /usr/local/bin
 
 # Install required packages
 echo "Installing required packages..."
