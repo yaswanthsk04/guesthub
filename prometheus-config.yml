@@ -10,7 +10,3 @@ scrape_configs:
   - job_name: 'openwrt'
     static_configs:
       - targets: ['192.168.0.105:9100']
-    metric_relabel_configs:
-      - source_labels: [__name__]
-        regex: '(node_(network|netstat|sockstat)_.*|openwrt_client_.*)'
-        action: keep
