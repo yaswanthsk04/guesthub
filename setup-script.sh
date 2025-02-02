@@ -32,8 +32,8 @@ cp node_exporter-1.7.0.linux-arm64/node_exporter /usr/bin/
 
 # Download configuration files from GitHub
 echo "Downloading configuration files..."
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/main/docker-compose.txt -O docker-compose.yml
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/main/prometheus-config.txt -O prometheus/prometheus.yml
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/main/docker-compose.yml -O docker-compose.yml
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/main/prometheus-config.yml -O prometheus/prometheus.yml
 wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/main/metrics-collector.sh -O /usr/local/bin/collect_client_metrics.sh
 
 # Set up node_exporter service
