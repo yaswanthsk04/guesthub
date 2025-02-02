@@ -25,6 +25,10 @@ mkdir -p /var/lib/node_exporter/textfile_collector
 echo "Installing required packages..."
 opkg install curl wget conntrack node-exporter
 
+wget https://github.com/prometheus/node_exporter/releases/download/v1.7.0/node_exporter-1.7.0.linux-arm64.tar.gz
+tar xvf node_exporter-1.7.0.linux-arm64.tar.gz
+cp node_exporter-1.7.0.linux-arm64/node_exporter /usr/bin/
+
 # Download configuration files from GitHub
 echo "Downloading configuration files..."
 wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/main/docker-compose.txt -O docker-compose.yml
