@@ -1,12 +1,5 @@
 #!/bin/sh
 
-# Configure network settings
-echo "Configuring LAN IP"
-uci set network.lan.ipaddr='192.168.98.1'        # LAN Gateway IP
-uci set network.lan.netmask='255.255.254.0'      # Subnet mask to allow 510 IPs
-uci commit network
-/etc/init.d/network restart
-
 # Configure DHCP settings
 echo "Configuring DHCP"
 uci set dhcp.lan.start='11'        # DHCP starts from 192.168.98.11
