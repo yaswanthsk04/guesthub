@@ -33,8 +33,10 @@ echo "Downloading configuration files..."
 wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/main/docker-compose.yml -O docker-compose.yml
 wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/main/prometheus-config.yml -O prometheus/prometheus.yml
 
-# Enable and start the Lua node exporter service
-echo "Enabling OpenWRT node exporter..."
+# Configure and start the Lua node exporter service
+echo "Configuring and enabling OpenWRT node exporter..."
+uci set prometheus-node-exporter-lua.main.listen_interface='*'
+uci commit prometheus-node-exporter-lua
 /etc/init.d/prometheus-node-exporter-lua enable
 /etc/init.d/prometheus-node-exporter-lua start
 
