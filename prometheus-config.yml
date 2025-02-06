@@ -13,4 +13,4 @@ scrape_configs:
 
   - job_name: 'opennds'
     static_configs:
-      - targets: ['192.168.98.1:9100']
+      - targets: ['192.168.98.1:9200']

@@ -4,13 +4,13 @@
 echo "Welcome to the installation of Gesthub v0.1.0"
 
 # Enable and restart WiFi
-wifi up
+uci set wireless.radio0.disabled=0
 wifi reload
 
 echo "Installing necessary packages"
 opkg update
 opkg install git git-http curl bash ca-bundle docker docker-compose dockerd nano python3 python3-pip opennds
-
+pip install prometheus_client
 echo "Starting OpenWrt monitoring services"
 service dockerd enable
 service dockerd start
@@ -40,6 +40,7 @@ wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/main/opennds
 # Setup OpenNDS exporter service
 echo "Setting up OpenNDS exporter service..."
 wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/main/opennds-exporter.service -O /etc/init.d/opennds-exporter
+chmod +x /usr/local/monitoring/opennds-exporter.py
 chmod +x /etc/init.d/opennds-exporter
 /etc/init.d/opennds-exporter enable
 /etc/init.d/opennds-exporter start
