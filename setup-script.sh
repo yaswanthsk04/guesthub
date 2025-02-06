@@ -35,7 +35,7 @@ prometheus-node-exporter-lua-wifi_stations
 echo "Downloading configuration files..."
 wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/main/docker-compose.yml -O docker-compose.yml
 wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/main/prometheus-config.yml -O prometheus/prometheus.yml
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/main/opennds-exporter.py -O opennds-exporter.py
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/main/opennds-exporter_v2.py -O opennds-exporter.py
 
 # Setup OpenNDS exporter service
 echo "Setting up OpenNDS exporter service..."
