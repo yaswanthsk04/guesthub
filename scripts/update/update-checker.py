@@ -34,11 +34,14 @@ UPDATE_ORDER = [
 # Map files to their local paths
 CORE_FILES = {
     'config/docker-compose.yml': f'{LOCAL_BASE_DIR}/docker-compose.yml',
-    'config/prometheus-config.yml': f'{LOCAL_BASE_DIR}/prometheus/prometheus.yml',
+    'config/prometheus-config.yml': f'{LOCAL_BASE_DIR}/prometheus/prometheus.yml',  # GitHub path -> local path
     'services/opennds-exporter.py': f'{LOCAL_BASE_DIR}/opennds-exporter.py',
     'scripts/update/update-checker.py': f'{LOCAL_BASE_DIR}/update-checker.py',
     'scripts/update/update-executor.sh': f'{LOCAL_BASE_DIR}/update-executor.sh'
 }
+
+# Ensure prometheus directory exists
+os.makedirs(f"{LOCAL_BASE_DIR}/prometheus", exist_ok=True)
 
 def ensure_updates_dir():
     """Ensure updates directory exists"""
@@ -109,8 +112,15 @@ def check_core_files():
                     logging.info(f"Update found for {github_path}")
                     # Use update executor to handle the file update
                     tmp_path = f"{local_path}.new"
+                    
+                    # Ensure directory exists for the new file
+                    os.makedirs(os.path.dirname(tmp_path), exist_ok=True)
+                    
+                    # Write the new content
                     with open(tmp_path, 'w') as f:
                         f.write(remote_content)
+                    
+                    logging.info(f"Created temporary file at {tmp_path}")
                     
                     # Execute update and capture output
                     result = subprocess.run(

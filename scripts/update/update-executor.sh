@@ -67,6 +67,10 @@ handle_prometheus() {
     log_message "Updating prometheus.yml..."
     cd /usr/local/monitoring || return 1
     
+    # Ensure prometheus directory exists
+    mkdir -p prometheus
+    chmod 755 prometheus
+    
     # Create backup
     create_backup "prometheus/prometheus.yml"
     
@@ -77,6 +81,8 @@ handle_prometheus() {
     # Update file
     log_message "Updating prometheus.yml file..."
     cp "$file" prometheus/prometheus.yml
+    chmod 644 prometheus/prometheus.yml
+    log_message "Copied new prometheus config to: prometheus/prometheus.yml"
     
     # Start all services
     log_message "Starting Docker services..."
@@ -204,8 +210,14 @@ execute_update() {
             "docker-compose.yml")
                 handle_docker_compose "$update_file"
                 ;;
-            "prometheus.yml")
-                handle_prometheus "$update_file"
+            "prometheus.yml"|"prometheus/prometheus.yml")
+                # Handle both direct and subdirectory paths
+                if [[ $update_file == */prometheus/prometheus.yml.new ]]; then
+                    handle_prometheus "$update_file"
+                else
+                    # If file is in a different location, still handle it
+                    handle_prometheus "$update_file"
+                fi
                 ;;
             "opennds-exporter.py")
                 handle_opennds_exporter "$update_file"
