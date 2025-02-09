@@ -111,7 +111,26 @@ def check_core_files():
                     tmp_path = f"{local_path}.new"
                     with open(tmp_path, 'w') as f:
                         f.write(remote_content)
-                    subprocess.run([f"{LOCAL_BASE_DIR}/update-executor.sh", tmp_path])
+                    
+                    # Execute update and capture output
+                    result = subprocess.run(
+                        [f"{LOCAL_BASE_DIR}/update-executor.sh", tmp_path],
+                        capture_output=True,
+                        text=True
+                    )
+                    
+                    # Log the output
+                    if result.stdout:
+                        logging.info(f"Update executor output: {result.stdout}")
+                    if result.stderr:
+                        logging.error(f"Update executor error: {result.stderr}")
+                        
+                    # Check if update was successful
+                    if result.returncode != 0:
+                        logging.error(f"Update failed for {github_path}")
+                        continue
+                    
+                    logging.info(f"Update completed for {github_path}")
                     updates_needed = True
             except FileNotFoundError:
                 logging.error(f"Local file not found: {local_path}")

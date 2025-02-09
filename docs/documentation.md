@@ -150,10 +150,15 @@ curl http://localhost:9100/metrics | grep openwrt_client
    - Configure firewall rules
    - Restrict access to management ports
 
+## Quick Reference
+
+For commonly used commands and operations, see the [Commands Reference](commands.md).
+
 ## Support
 
 For issues or questions:
 1. Check the troubleshooting section
 2. Review logs
 3. Check [Update System Documentation](updates.md) for update-related issues
-4. Contact support
+4. Refer to [Commands Reference](commands.md) for common operations
+5. Contact support

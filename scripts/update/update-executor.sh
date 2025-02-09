@@ -146,31 +146,79 @@ handle_update_executor() {
     echo "Update executor staged for update"
 }
 
+# Function to log to both console and syslog
+log_message() {
+    echo "$1"
+    logger -t "update-executor" "$1"
+}
+
 # Function to execute an update file or handle specific file updates
 execute_update() {
     local update_file="$1"
     local update_num="$2"
     
-    echo "Executing update $update_num..."
+    log_message "Executing update $update_num for file: $update_file"
     
     # Check if this is a specific file update
     if [[ $update_file == *"docker-compose.yml" ]]; then
+        log_message "Detected docker-compose.yml update"
         handle_docker_compose "$update_file"
-    elif [[ $update_file == *"prometheus.yml" ]]; then
-        handle_prometheus "$update_file"
-    elif [[ $update_file == *"opennds-exporter.py" ]]; then
-        handle_opennds_exporter "$update_file"
-    elif [[ $update_file == *"update-checker.py" ]]; then
-        handle_update_checker "$update_file"
-    elif [[ $update_file == *"update-executor.sh" ]]; then
-        handle_update_executor "$update_file"
-    else
-        # Regular update script
-        chmod +x "$update_file"
-        if ! "$update_file"; then
-            echo "Update $update_num failed"
+        if [ $? -eq 0 ]; then
+            log_message "docker-compose.yml update completed successfully"
+            rm -f "$update_file"  # Remove .new file after successful update
+        else
+            log_message "docker-compose.yml update failed"
             return 1
         fi
+    elif [[ $update_file == *"prometheus.yml" ]]; then
+        log_message "Detected prometheus.yml update"
+        handle_prometheus "$update_file"
+        if [ $? -eq 0 ]; then
+            log_message "prometheus.yml update completed successfully"
+            rm -f "$update_file"  # Remove .new file after successful update
+        else
+            log_message "prometheus.yml update failed"
+            return 1
+        fi
+    elif [[ $update_file == *"opennds-exporter.py" ]]; then
+        log_message "Detected opennds-exporter.py update"
+        handle_opennds_exporter "$update_file"
+        if [ $? -eq 0 ]; then
+            log_message "opennds-exporter.py update completed successfully"
+            rm -f "$update_file"  # Remove .new file after successful update
+        else
+            log_message "opennds-exporter.py update failed"
+            return 1
+        fi
+    elif [[ $update_file == *"update-checker.py" ]]; then
+        log_message "Detected update-checker.py update"
+        handle_update_checker "$update_file"
+        if [ $? -eq 0 ]; then
+            log_message "update-checker.py update staged successfully"
+            rm -f "$update_file"  # Remove .new file after successful update
+        else
+            log_message "update-checker.py update failed"
+            return 1
+        fi
+    elif [[ $update_file == *"update-executor.sh" ]]; then
+        log_message "Detected update-executor.sh update"
+        handle_update_executor "$update_file"
+        if [ $? -eq 0 ]; then
+            log_message "update-executor.sh update staged successfully"
+            rm -f "$update_file"  # Remove .new file after successful update
+        else
+            log_message "update-executor.sh update failed"
+            return 1
+        fi
+    else
+        # Regular update script
+        log_message "Executing regular update script: $update_file"
+        chmod +x "$update_file"
+        if ! "$update_file"; then
+            log_message "Update $update_num failed"
+            return 1
+        fi
+        log_message "Regular update completed successfully"
     fi
     
     echo "$update_num" > "$LAST_UPDATE_FILE"
