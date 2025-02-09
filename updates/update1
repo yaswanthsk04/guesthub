@@ -1,0 +1,33 @@
+#!/bin/bash
+# Update 1: Configure network and DHCP settings
+
+echo "Updating network configuration..."
+# Set network configuration
+uci set network.lan.netmask='255.255.254.0'
+uci commit network
+
+echo "Configuring DHCP settings..."
+# Configure DHCP
+uci set dhcp.lan.start='11'        # DHCP starts from 192.168.98.11
+uci set dhcp.lan.limit='500'       # Total IPs: 500 (192.168.98.11 to 192.168.99.254)
+
+echo "Setting up static DHCP reservation..."
+# Configure static DHCP reservation for AP
+uci add dhcp host
+uci set dhcp.@host[-1].mac='5C:A6:E6:D8:CC:B2'   # TP-Link MAC address
+uci set dhcp.@host[-1].ip='192.168.98.2'         # Reserved IP
+uci set dhcp.@host[-1].name='AP1-TP-LINK'        # Device name
+uci commit dhcp
+
+echo "Restarting services..."
+# Restart services to apply changes
+service network restart
+service dnsmasq restart
+
+echo "Network configuration update completed"
+echo "- Network netmask: 255.255.254.0"
+echo "- DHCP range: 192.168.98.11 - 192.168.99.254"
+echo "- Static IP for AP: 192.168.98.2"
+
+# Log the update
+logger "Update1: Network configuration updated successfully"
