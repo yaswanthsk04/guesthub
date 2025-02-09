@@ -165,9 +165,26 @@ handle_update_checker() {
     chmod +x /usr/local/monitoring/update-checker.py
     rm -f "$file"  # Remove the .new file immediately
     
-    # Start service
+    # Start service with retries
     log_message "INFO" "Starting update checker service..."
-    /etc/init.d/update-checker start
+    for i in {1..3}; do
+        /etc/init.d/update-checker start
+        sleep 2
+        if /etc/init.d/update-checker status | grep -q "running"; then
+            log_message "INFO" "Update checker service started successfully"
+            break
+        else
+            log_message "INFO" "Retry $i: Service not running, attempting restart..."
+            /etc/init.d/update-checker stop
+            sleep 2
+        fi
+    done
+    
+    # Final check
+    if ! /etc/init.d/update-checker status | grep -q "running"; then
+        log_error "Failed to start update checker service after multiple attempts"
+        return 1
+    fi
     
     log_message "INFO" "Update checker updated successfully"
     return 0
