@@ -269,7 +269,7 @@ def check_for_updates():
 
 def main():
     logger.info("********************************")
-    logger.info("Update checker starting - Version 0.1.1 - TEST UPDATE")
+    logger.info("Update checker starting - Version 0.1.0 - TEST UPDATE")
     logger.info("********************************")
     
     # Clean up any leftover .new files from previous runs
