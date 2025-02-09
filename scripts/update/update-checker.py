@@ -112,6 +112,12 @@ def get_remote_updates():
         # Using GitHub API to list directory contents
         api_url = "https://api.github.com/repos/yaswanthsk04/guesthub_v0.1.0/contents/updates"
         response = requests.get(api_url)
+        
+        # If directory doesn't exist, no updates available
+        if response.status_code == 404:
+            logging.info("No updates directory found in repository")
+            return []
+            
         response.raise_for_status()
         
         updates = []
@@ -127,8 +133,14 @@ def get_remote_updates():
         # Sort updates by number
         updates.sort(key=lambda x: x[0])
         return [name for num, name in updates]
+    except requests.exceptions.RequestException as e:
+        if hasattr(e.response, 'status_code') and e.response.status_code == 404:
+            logging.info("No updates directory found in repository")
+        else:
+            logging.error(f"Error checking for updates: {e}")
+        return []
     except Exception as e:
-        logging.error(f"Error getting remote updates list: {e}")
+        logging.error(f"Unexpected error checking for updates: {e}")
         return []
 
 def check_update_scripts():
