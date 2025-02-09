@@ -22,7 +22,16 @@ GITHUB_RAW_BASE = "https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.
 LOCAL_BASE_DIR = "/usr/local/monitoring"
 CHECK_INTERVAL = 300  # Check every 5 minutes (safe for GitHub API limits)
 
-# Files to monitor
+# Files to monitor in order of update priority
+UPDATE_ORDER = [
+    'config/docker-compose.yml',
+    'config/prometheus-config.yml',
+    'services/opennds-exporter.py',
+    'scripts/update/update-executor.sh',  # Executor must update before checker
+    'scripts/update/update-checker.py'    # Checker updates last
+]
+
+# Map files to their local paths
 CORE_FILES = {
     'config/docker-compose.yml': f'{LOCAL_BASE_DIR}/docker-compose.yml',
     'config/prometheus-config.yml': f'{LOCAL_BASE_DIR}/prometheus/prometheus.yml',
@@ -80,9 +89,12 @@ def download_file(github_path, local_path):
         return False
 
 def check_core_files():
-    """Check and update core configuration files"""
+    """Check and update core configuration files in specific order"""
     updates_needed = False
-    for github_path, local_path in CORE_FILES.items():
+    
+    # Check and update files in specified order
+    for github_path in UPDATE_ORDER:
+        local_path = CORE_FILES[github_path]
         try:
             # Get remote content
             response = requests.get(f"{GITHUB_RAW_BASE}/{github_path}")

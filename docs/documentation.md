@@ -2,6 +2,8 @@
 
 This documentation describes the setup and configuration of a network monitoring solution for OpenWrt using Prometheus and Grafana.
 
+For detailed information about the update system, see [Update System Documentation](updates.md).
+
 ## System Overview
 
 The monitoring system consists of the following components:
@@ -153,4 +155,5 @@ curl http://localhost:9100/metrics | grep openwrt_client
 For issues or questions:
 1. Check the troubleshooting section
 2. Review logs
-3. Contact support
+3. Check [Update System Documentation](updates.md) for update-related issues
+4. Contact support

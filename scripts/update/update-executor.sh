@@ -92,16 +92,27 @@ handle_update_checker() {
     # Create backup
     create_backup "/usr/local/monitoring/update-checker.py"
     
-    # Stop service
+    # Create completion script for update-checker
+    echo '#!/bin/bash
+    # Wait a moment for current process
+    sleep 2
+    # Stop the service
     /etc/init.d/update-checker stop
-    
-    # Update file
-    cp "$file" /usr/local/monitoring/update-checker.py
-    chmod +x /usr/local/monitoring/update-checker.py
-    
-    # Start service
+    # Update the file
+    cp "'$file'" "/usr/local/monitoring/update-checker.py"
+    chmod +x "/usr/local/monitoring/update-checker.py"
+    # Start the service
     /etc/init.d/update-checker start
-    echo "Update checker updated successfully"
+    # Clean up
+    rm -- "$0"
+    ' > /usr/local/monitoring/update_checker_update.sh
+    
+    chmod +x /usr/local/monitoring/update_checker_update.sh
+    
+    # Launch completion script in background
+    nohup /usr/local/monitoring/update_checker_update.sh >/dev/null 2>&1 &
+    
+    echo "Update checker staged for update"
 }
 
 # Function to handle update-executor.sh updates
