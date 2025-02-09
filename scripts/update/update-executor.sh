@@ -1,9 +1,10 @@
 #!/bin/bash
 # Update executor script
 # This script looks for and executes numbered update files
+# Note: This script's own updates are handled by update-executor-handler.py
 
 UPDATES_DIR="/usr/local/monitoring/updates"
-LAST_UPDATE_FILE="/usr/local/monitoring/last_update"
+LAST_UPDATE_FILE="/usr/local/monitoring/state/last_update"
 
 # Create updates directory if it doesn't exist
 mkdir -p "$UPDATES_DIR"
@@ -48,7 +49,7 @@ create_backup() {
 handle_docker_compose() {
     local file="$1"
     log_message "INFO" "Updating docker-compose.yml..."
-    cd /usr/local/monitoring || return 1
+    cd /usr/local/monitoring/docker || return 1
     
     # Create backup
     create_backup "docker-compose.yml"
@@ -79,14 +80,14 @@ handle_docker_compose() {
 handle_prometheus() {
     local file="$1"
     log_message "INFO" "Updating prometheus.yml..."
-    cd /usr/local/monitoring || return 1
+    cd /usr/local/monitoring/docker || return 1
     
     # Ensure prometheus directory exists
     mkdir -p prometheus
     chmod 755 prometheus
     
     # Create backup
-    create_backup "prometheus/prometheus.yml"
+    create_backup "prometheus/config.yml"
     
     # Stop all services
     log_message "INFO" "Stopping Docker services..."
@@ -94,8 +95,8 @@ handle_prometheus() {
     
     # Update file
     log_message "INFO" "Updating prometheus.yml file..."
-    cp "$file" prometheus/prometheus.yml
-    chmod 644 prometheus/prometheus.yml
+    cp "$file" prometheus/config.yml
+    chmod 644 prometheus/config.yml
     log_message "INFO" "Copied new prometheus config to: prometheus/prometheus.yml"
     
     # Start all services
@@ -118,7 +119,7 @@ handle_opennds_exporter() {
     log_message "INFO" "Updating opennds-exporter..."
     
     # Create backup
-    create_backup "/usr/local/monitoring/opennds-exporter.py"
+    create_backup "/usr/local/monitoring/exporters/opennds.py"
     
     # Stop service
     log_message "INFO" "Stopping OpenNDS exporter..."
@@ -126,8 +127,8 @@ handle_opennds_exporter() {
     
     # Update file
     log_message "INFO" "Updating opennds-exporter.py file..."
-    cp "$file" /usr/local/monitoring/opennds-exporter.py
-    chmod +x /usr/local/monitoring/opennds-exporter.py
+    cp "$file" /usr/local/monitoring/exporters/opennds.py
+    chmod +x /usr/local/monitoring/exporters/opennds.py
     
     # Start service
     log_message "INFO" "Starting OpenNDS exporter..."
@@ -151,7 +152,7 @@ handle_update_checker() {
     log_message "INFO" "********************************"
     
     # Create backup
-    create_backup "/usr/local/monitoring/update-checker.py"
+    create_backup "/usr/local/monitoring/update-system/checker.py"
     
     # Stop service and kill any remaining processes
     log_message "INFO" "Stopping update checker service..."
@@ -161,65 +162,14 @@ handle_update_checker() {
     
     # Update file
     log_message "INFO" "Installing new update checker..."
-    cp "$file" /usr/local/monitoring/update-checker.py
-    chmod +x /usr/local/monitoring/update-checker.py
+    cp "$file" /usr/local/monitoring/update-system/checker.py
+    chmod +x /usr/local/monitoring/update-system/checker.py
     rm -f "$file"  # Remove the .new file immediately
     
-    # Start service with retries
-    log_message "INFO" "Starting update checker service..."
-    for i in {1..3}; do
-        /etc/init.d/update-checker start
-        sleep 2
-        if /etc/init.d/update-checker status | grep -q "running"; then
-            log_message "INFO" "Update checker service started successfully"
-            break
-        else
-            log_message "INFO" "Retry $i: Service not running, attempting restart..."
-            /etc/init.d/update-checker stop
-            sleep 2
-        fi
-    done
-    
-    # Final check
-    if ! /etc/init.d/update-checker status | grep -q "running"; then
-        log_error "Failed to start update checker service after multiple attempts"
-        return 1
-    fi
+    # Let cron job handle the restart
+    log_message "INFO" "Update complete - cron job will restart service"
     
     log_message "INFO" "Update checker updated successfully"
-    return 0
-}
-
-# Function to handle update-executor.sh updates
-handle_update_executor() {
-    local file="$1"
-    log_message "INFO" "Updating update-executor.sh..."
-    local temp_executor="/usr/local/monitoring/temp_executor.sh"
-    
-    # Create backup
-    create_backup "/usr/local/monitoring/update-executor.sh"
-    
-    # Copy new version to temporary location
-    cp "$file" "$temp_executor"
-    chmod +x "$temp_executor"
-    rm -f "$file"  # Remove the .new file immediately
-    
-    # Create completion script
-    echo '#!/bin/bash
-    # Wait for original executor to finish
-    sleep 2
-    # Replace old executor with new version
-    cp "'$temp_executor'" "/usr/local/monitoring/update-executor.sh"
-    # Clean up
-    rm "'$temp_executor'"
-    rm -- "$0"
-    ' > /usr/local/monitoring/finish_update.sh
-    chmod +x /usr/local/monitoring/finish_update.sh
-    
-    # Launch completion script in background
-    nohup /usr/local/monitoring/finish_update.sh >/dev/null 2>&1 &
-    
-    log_message "INFO" "Update executor staged for update"
     return 0
 }
 
@@ -345,9 +295,6 @@ execute_update() {
                 ;;
             "update-checker.py")
                 handle_update_checker "$update_file"
-                ;;
-            "update-executor.sh")
-                handle_update_executor "$update_file"
                 ;;
             *)
                 log_error "Unknown file type: $base_name"

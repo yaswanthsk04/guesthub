@@ -2,7 +2,7 @@
 
 START=99
 USE_PROCD=1
-PROG=/usr/local/monitoring/update-checker.py
+PROG=/usr/local/monitoring/update-system/checker.py
 
 start_service() {
     procd_open_instance
@@ -16,7 +16,7 @@ start_service() {
 
 stop_service() {
     service_stop python3
-    pkill -f "update-checker.py"
+    pkill -f "checker.py"
 }
 
 reload_service() {

@@ -35,21 +35,26 @@ CHECK_INTERVAL = 300  # Check every 5 minutes (safe for GitHub API limits)
 
 # Files to monitor in order of update priority
 UPDATE_ORDER = [
-    'config/docker-compose.yml',
-    'config/prometheus-config.yml',
-    'services/opennds-exporter.py',
-    'scripts/update/update-executor.sh',  # Executor must update before checker
-    'scripts/update/update-checker.py'    # Checker updates last
+    'scripts/update/update-executor.sh',      # 1st: Update the tool that handles updates
+    'scripts/update/update-checker.py',       # 2nd: Update the checker that finds updates
+    'services/opennds-exporter.py',          # 3rd: Update service components
+    'config/prometheus-config.yml',           # 4th: Update monitoring config
+    'config/docker-compose.yml'              # 5th: Update container setup last
 ]
 
 # Map files to their local paths
 CORE_FILES = {
-    'config/docker-compose.yml': f'{LOCAL_BASE_DIR}/docker-compose.yml',
-    'config/prometheus-config.yml': f'{LOCAL_BASE_DIR}/prometheus/prometheus.yml',  # GitHub path -> local path
-    'services/opennds-exporter.py': f'{LOCAL_BASE_DIR}/opennds-exporter.py',
-    'scripts/update/update-checker.py': f'{LOCAL_BASE_DIR}/update-checker.py',
-    'scripts/update/update-executor.sh': f'{LOCAL_BASE_DIR}/update-executor.sh'
+    'config/docker-compose.yml': f'{LOCAL_BASE_DIR}/docker/docker-compose.yml',
+    'config/prometheus-config.yml': f'{LOCAL_BASE_DIR}/docker/prometheus/config.yml',
+    'services/opennds-exporter.py': f'{LOCAL_BASE_DIR}/exporters/opennds.py',
+    'scripts/update/update-checker.py': f'{LOCAL_BASE_DIR}/update-system/checker.py',
+    'scripts/update/update-executor.sh': f'{LOCAL_BASE_DIR}/update-system/executor.sh'
 }
+
+# Constants for local paths
+LAST_UPDATE_FILE = f"{LOCAL_BASE_DIR}/state/last_update"
+UPDATES_DIR = f"{LOCAL_BASE_DIR}/updates"
+BACKUPS_DIR = f"{LOCAL_BASE_DIR}/backups"
 
 # Ensure prometheus directory exists
 os.makedirs(f"{LOCAL_BASE_DIR}/prometheus", exist_ok=True)
@@ -135,11 +140,26 @@ def check_core_files():
                         f.write(remote_content)
                     logger.info(f"Created temporary file at {tmp_path}")
                     
-                    # Group updates
-                    if github_path in ['config/docker-compose.yml', 'config/prometheus-config.yml']:
-                        docker_updates.append(tmp_path)
+                    # Handle executor update separately
+                    if github_path == 'scripts/update/update-executor.sh':
+                        logger.info("Handling executor update directly...")
+                        result = subprocess.run(
+                            ['python3', f"{LOCAL_BASE_DIR}/update-executor-handler.py", tmp_path],
+                            capture_output=True,
+                            text=True
+                        )
+                        if result.stdout:
+                            logger.info(f"Handler output: {result.stdout}")
+                        if result.stderr:
+                            logger.error(f"Handler error: {result.stderr}")
+                        if result.returncode != 0:
+                            logger.error("Failed to update executor")
                     else:
-                        other_updates.append(tmp_path)
+                        # Group other updates
+                        if github_path in ['config/docker-compose.yml', 'config/prometheus-config.yml']:
+                            docker_updates.append(tmp_path)
+                        else:
+                            other_updates.append(tmp_path)
                     
                     updates_needed = True
             except FileNotFoundError:
