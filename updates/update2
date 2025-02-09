@@ -1,0 +1,14 @@
+#!/bin/bash
+# Update 1: Configure network and DHCP settings
+
+echo "Updating network configuration..."
+# Set network configuration
+uci set network.lan.ipaddr='192.168.98.1'
+uci commit network
+
+service network restart
+
+echo "- Static IP for Pi: 192.168.98.1"
+
+# Log the update
+logger "Update2: IP Updated successfulyy"
