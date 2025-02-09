@@ -108,6 +108,11 @@ def check_core_files():
     docker_updates = []  # Track docker-related updates
     other_updates = []   # Track other updates
     
+    # Skip if we're in the middle of an update
+    if os.path.exists(f"{LOCAL_BASE_DIR}/update-checker.py.new"):
+        logger.info("Update in progress, skipping check")
+        return
+    
     # First pass: Check all files and prepare updates
     for github_path in UPDATE_ORDER:
         local_path = CORE_FILES[github_path]
@@ -264,6 +269,17 @@ def check_for_updates():
 
 def main():
     logger.info("Update checker starting - Version 0.1.0")
+    
+    # Clean up any leftover .new files from previous runs
+    for file_path in CORE_FILES.values():
+        new_file = f"{file_path}.new"
+        if os.path.exists(new_file):
+            try:
+                os.remove(new_file)
+                logger.info(f"Cleaned up leftover file: {new_file}")
+            except Exception as e:
+                logger.error(f"Failed to clean up {new_file}: {e}")
+    
     while True:
         try:
             check_for_updates()

@@ -151,27 +151,23 @@ handle_update_checker() {
     # Create backup
     create_backup "/usr/local/monitoring/update-checker.py"
     
-    # Create completion script for update-checker
-    echo '#!/bin/bash
-    # Wait a moment for current process
-    sleep 2
-    # Stop the service
+    # Stop service and kill any remaining processes
+    log_message "INFO" "Stopping update checker service..."
     /etc/init.d/update-checker stop
-    # Update the file
-    cp "'$file'" "/usr/local/monitoring/update-checker.py"
-    chmod +x "/usr/local/monitoring/update-checker.py"
-    # Start the service
+    sleep 2
+    pkill -f "update-checker.py"
+    
+    # Update file
+    log_message "INFO" "Installing new update checker..."
+    cp "$file" /usr/local/monitoring/update-checker.py
+    chmod +x /usr/local/monitoring/update-checker.py
+    rm -f "$file"  # Remove the .new file immediately
+    
+    # Start service
+    log_message "INFO" "Starting update checker service..."
     /etc/init.d/update-checker start
-    # Clean up
-    rm -- "$0"
-    ' > /usr/local/monitoring/update_checker_update.sh
     
-    chmod +x /usr/local/monitoring/update_checker_update.sh
-    
-    # Launch completion script in background
-    nohup /usr/local/monitoring/update_checker_update.sh >/dev/null 2>&1 &
-    
-    log_message "INFO" "Update checker staged for update"
+    log_message "INFO" "Update checker updated successfully"
     return 0
 }
 
@@ -187,6 +183,7 @@ handle_update_executor() {
     # Copy new version to temporary location
     cp "$file" "$temp_executor"
     chmod +x "$temp_executor"
+    rm -f "$file"  # Remove the .new file immediately
     
     # Create completion script
     echo '#!/bin/bash
@@ -228,6 +225,7 @@ handle_docker_batch() {
         # Update file
         log_message "INFO" "Updating docker-compose.yml file..."
         cp "$file" docker-compose.yml
+        rm -f "$file"  # Remove the .new file immediately
         
         if [ "$is_batch" != "--batch" ]; then
             # If not in batch mode, start services
@@ -265,6 +263,7 @@ handle_docker_batch() {
         log_message "INFO" "Updating prometheus.yml file..."
         cp "$file" prometheus/prometheus.yml
         chmod 644 prometheus/prometheus.yml
+        rm -f "$file"  # Remove the .new file immediately
         
         if [ "$is_batch" != "--batch" ]; then
             # If not in batch mode, start services
@@ -339,7 +338,6 @@ execute_update() {
         
         if [ $? -eq 0 ]; then
             log_message "INFO" "Update completed successfully for $base_name"
-            rm -f "$update_file"
             return 0
         else
             log_error "Update failed for $base_name"
