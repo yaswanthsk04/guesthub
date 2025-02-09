@@ -66,12 +66,17 @@ uci commit prometheus-node-exporter-lua
 /etc/init.d/prometheus-node-exporter-lua enable
 /etc/init.d/prometheus-node-exporter-lua start
 
-# Setup Docker containers service
-echo "Setting up Docker containers service..."
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/main/services/monitoring-containers.service -O /etc/init.d/monitoring-containers
-chmod +x /etc/init.d/monitoring-containers
-/etc/init.d/monitoring-containers enable
-/etc/init.d/monitoring-containers start
+# Start Docker containers
+echo "Starting Docker containers..."
+cd /usr/local/monitoring
+docker network create monitoring_network || true  # Create if doesn't exist
+docker-compose up -d
+
+# Show status
+echo "Verifying containers are running..."
+docker-compose ps
+
+echo "Container restart policy set to 'always' - will auto-start after reboot"
 
 # Install and configure update system
 echo "Setting up automatic update system..."
