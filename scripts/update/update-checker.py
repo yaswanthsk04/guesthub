@@ -155,7 +155,19 @@ def check_core_files():
             if result.stdout:
                 logger.info(f"Update executor output: {result.stdout}")
             if result.stderr:
-                logger.error(f"Update executor error: {result.stderr}")
+                # Split on both newlines and container operations
+                stderr_text = result.stderr
+                for split_term in ['container', '\n']:
+                    stderr_text = stderr_text.replace(split_term, '\n' + split_term)
+                stderr_lines = [line.strip() for line in stderr_text.splitlines() if line.strip()]
+                
+                for line in stderr_lines:
+                    # Check for normal docker operations
+                    if any(normal_msg in line.lower() for normal_msg in 
+                          ['stopping', 'removing', 'removed', 'starting', 'started', 'done']):
+                        logger.info(f"Docker compose: {line}")
+                    else:
+                        logger.error(f"Update executor error: {line}")
             if result.returncode != 0:
                 logger.error(f"Update failed for {update_file}")
     
@@ -168,8 +180,20 @@ def check_core_files():
         )
         if result.stdout:
             logger.info(f"Update executor output: {result.stdout}")
-        if result.stderr:
-            logger.error(f"Update executor error: {result.stderr}")
+            if result.stderr:
+                # Split on both newlines and container operations
+                stderr_text = result.stderr
+                for split_term in ['container', '\n']:
+                    stderr_text = stderr_text.replace(split_term, '\n' + split_term)
+                stderr_lines = [line.strip() for line in stderr_text.splitlines() if line.strip()]
+                
+                for line in stderr_lines:
+                    # Check for normal docker operations
+                    if any(normal_msg in line.lower() for normal_msg in 
+                          ['stopping', 'removing', 'removed', 'starting', 'started', 'done']):
+                        logger.info(f"Docker compose: {line}")
+                    else:
+                        logger.error(f"Update executor error: {line}")
         if result.returncode != 0:
             logger.error(f"Update failed for {update_file}")
 
