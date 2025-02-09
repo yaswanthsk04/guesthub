@@ -146,7 +146,9 @@ handle_opennds_exporter() {
 # Function to handle update-checker.py updates
 handle_update_checker() {
     local file="$1"
-    log_message "INFO" "Updating update-checker.py..."
+    log_message "INFO" "********************************"
+    log_message "INFO" "Updating update-checker.py - TEST UPDATE"
+    log_message "INFO" "********************************"
     
     # Create backup
     create_backup "/usr/local/monitoring/update-checker.py"

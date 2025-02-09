@@ -268,7 +268,9 @@ def check_for_updates():
     logger.info("Update check cycle completed")
 
 def main():
-    logger.info("Update checker starting - Version 0.1.0")
+    logger.info("********************************")
+    logger.info("Update checker starting - Version 0.1.1 - TEST UPDATE")
+    logger.info("********************************")
     
     # Clean up any leftover .new files from previous runs
     for file_path in CORE_FILES.values():
