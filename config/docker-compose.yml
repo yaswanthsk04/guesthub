@@ -21,7 +21,7 @@ services:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=changeme
     ports:
-      - "3000:3000"
+      - "3000:3011"
     networks:
       - monitoring
     restart: always

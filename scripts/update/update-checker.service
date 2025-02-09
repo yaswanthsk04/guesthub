@@ -6,13 +6,20 @@ PROG=/usr/local/monitoring/update-checker.py
 
 start_service() {
     procd_open_instance
-    procd_set_param command $PROG
+    procd_set_param command python3 $PROG
     procd_set_param stdout 1
     procd_set_param stderr 1
     procd_set_param respawn
+    procd_set_param respawn_delay 60
     procd_close_instance
 }
 
 stop_service() {
-    service_stop $PROG
+    service_stop python3
+    pkill -f "update-checker.py"
+}
+
+reload_service() {
+    stop
+    start
 }
