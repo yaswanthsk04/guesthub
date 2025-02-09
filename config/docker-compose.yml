@@ -9,7 +9,7 @@ services:
     volumes:
       - ./prometheus:/etc/prometheus
     ports:
-      - "9090:9090"
+      - "9090:9091"
     networks:
       - monitoring
     restart: always
@@ -21,7 +21,7 @@ services:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=changeme
     ports:
-      - "3000:3000"
+      - "3000:3001"
     networks:
       - monitoring
     restart: always
