@@ -5,17 +5,28 @@ import time
 import os
 import logging
 import subprocess
-from datetime import datetime
+from datetime import datetime, timedelta
 
-# Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('/var/log/update-checker.log'),
-        logging.StreamHandler()
-    ]
-)
+# Setup logging with detailed timestamp format
+class CustomFormatter(logging.Formatter):
+    def format(self, record):
+        record.message = record.getMessage()
+        timestamp = self.formatTime(record, self.datefmt)
+        return f"[{timestamp}] update-checker: {record.levelname} - {record.message}"
+
+# Configure logging
+logger = logging.getLogger('update-checker')
+logger.setLevel(logging.INFO)
+
+# File handler
+file_handler = logging.FileHandler('/var/log/update-checker.log')
+file_handler.setFormatter(CustomFormatter(datefmt='%Y-%m-%d %H:%M:%S'))
+logger.addHandler(file_handler)
+
+# Console handler
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(CustomFormatter(datefmt='%Y-%m-%d %H:%M:%S'))
+logger.addHandler(console_handler)
 
 # Configuration
 GITHUB_RAW_BASE = "https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/main"
@@ -62,10 +73,10 @@ def set_permissions(filepath):
             base_perm = 0o755
             
         os.chmod(filepath, base_perm)
-        logging.info(f"Set permissions {oct(base_perm)} for {filepath}")
+        logger.info(f"Set permissions {oct(base_perm)} for {filepath}")
         return True
     except Exception as e:
-        logging.error(f"Error setting permissions for {filepath}: {e}")
+        logger.error(f"Error setting permissions for {filepath}: {e}")
         return False
 
 def download_file(github_path, local_path):
@@ -88,14 +99,16 @@ def download_file(github_path, local_path):
         
         return True
     except Exception as e:
-        logging.error(f"Error downloading {github_path}: {e}")
+        logger.error(f"Error downloading {github_path}: {e}")
         return False
 
 def check_core_files():
     """Check and update core configuration files in specific order"""
     updates_needed = False
+    docker_updates = []  # Track docker-related updates
+    other_updates = []   # Track other updates
     
-    # Check and update files in specified order
+    # First pass: Check all files and prepare updates
     for github_path in UPDATE_ORDER:
         local_path = CORE_FILES[github_path]
         try:
@@ -109,43 +122,56 @@ def check_core_files():
                 with open(local_path, 'r') as f:
                     local_content = f.read()
                 if remote_content != local_content:
-                    logging.info(f"Update found for {github_path}")
-                    # Use update executor to handle the file update
+                    logger.info(f"Update found for {github_path}")
+                    # Create temporary file
                     tmp_path = f"{local_path}.new"
-                    
-                    # Ensure directory exists for the new file
                     os.makedirs(os.path.dirname(tmp_path), exist_ok=True)
-                    
-                    # Write the new content
                     with open(tmp_path, 'w') as f:
                         f.write(remote_content)
+                    logger.info(f"Created temporary file at {tmp_path}")
                     
-                    logging.info(f"Created temporary file at {tmp_path}")
+                    # Group updates
+                    if github_path in ['config/docker-compose.yml', 'config/prometheus-config.yml']:
+                        docker_updates.append(tmp_path)
+                    else:
+                        other_updates.append(tmp_path)
                     
-                    # Execute update and capture output
-                    result = subprocess.run(
-                        [f"{LOCAL_BASE_DIR}/update-executor.sh", tmp_path],
-                        capture_output=True,
-                        text=True
-                    )
-                    
-                    # Log the output
-                    if result.stdout:
-                        logging.info(f"Update executor output: {result.stdout}")
-                    if result.stderr:
-                        logging.error(f"Update executor error: {result.stderr}")
-                        
-                    # Check if update was successful
-                    if result.returncode != 0:
-                        logging.error(f"Update failed for {github_path}")
-                        continue
-                    
-                    logging.info(f"Update completed for {github_path}")
                     updates_needed = True
             except FileNotFoundError:
-                logging.error(f"Local file not found: {local_path}")
+                logger.error(f"Local file not found: {local_path}")
         except Exception as e:
-            logging.error(f"Error checking {github_path}: {e}")
+            logger.error(f"Error checking {github_path}: {e}")
+    
+    # Second pass: Execute updates in proper order
+    if docker_updates:
+        # If we have docker-related updates, handle them together
+        logger.info("Processing docker-related updates together...")
+        for update_file in docker_updates:
+            result = subprocess.run(
+                [f"{LOCAL_BASE_DIR}/update-executor.sh", update_file, "--batch"],
+                capture_output=True,
+                text=True
+            )
+            if result.stdout:
+                logger.info(f"Update executor output: {result.stdout}")
+            if result.stderr:
+                logger.error(f"Update executor error: {result.stderr}")
+            if result.returncode != 0:
+                logger.error(f"Update failed for {update_file}")
+    
+    # Handle other updates normally
+    for update_file in other_updates:
+        result = subprocess.run(
+            [f"{LOCAL_BASE_DIR}/update-executor.sh", update_file],
+            capture_output=True,
+            text=True
+        )
+        if result.stdout:
+            logger.info(f"Update executor output: {result.stdout}")
+        if result.stderr:
+            logger.error(f"Update executor error: {result.stderr}")
+        if result.returncode != 0:
+            logger.error(f"Update failed for {update_file}")
 
 def get_remote_updates():
     """Get list of update files from GitHub"""
@@ -156,7 +182,7 @@ def get_remote_updates():
         
         # If directory doesn't exist, no updates available
         if response.status_code == 404:
-            logging.info("No updates directory found in repository")
+            logger.info("No updates directory found in repository")
             return []
             
         response.raise_for_status()
@@ -176,12 +202,12 @@ def get_remote_updates():
         return [name for num, name in updates]
     except requests.exceptions.RequestException as e:
         if hasattr(e.response, 'status_code') and e.response.status_code == 404:
-            logging.info("No updates directory found in repository")
+            logger.info("No updates directory found in repository")
         else:
-            logging.error(f"Error checking for updates: {e}")
+            logger.error(f"Error checking for updates: {e}")
         return []
     except Exception as e:
-        logging.error(f"Unexpected error checking for updates: {e}")
+        logger.error(f"Unexpected error checking for updates: {e}")
         return []
 
 def check_update_scripts():
@@ -191,26 +217,37 @@ def check_update_scripts():
         for update in remote_updates:
             local_path = f"{LOCAL_BASE_DIR}/updates/{update}"
             if not os.path.exists(local_path):
-                logging.info(f"Found new update: {update}")
+                logger.info(f"Found new update: {update}")
                 if download_file(f"updates/{update}", local_path):
                     subprocess.run([f"{LOCAL_BASE_DIR}/update-executor.sh", local_path])
     except Exception as e:
-        logging.error(f"Error checking update scripts: {e}")
+        logger.error(f"Error checking update scripts: {e}")
 
 def check_for_updates():
     """Check both core files and update scripts"""
+    logger.info("Starting update check cycle...")
     ensure_updates_dir()
+    
+    # Check core files
+    logger.info("Checking core files for updates...")
     check_core_files()
+    
+    # Check update scripts
+    logger.info("Checking for update scripts...")
     check_update_scripts()
+    
+    logger.info("Update check cycle completed")
 
 def main():
-    logging.info("Update checker service started")
+    logger.info("Update checker starting - Version 0.1.0")
     while True:
         try:
             check_for_updates()
+            next_check = datetime.now() + timedelta(seconds=CHECK_INTERVAL)
+            logger.info(f"Next check scheduled for: {next_check.strftime('%Y-%m-%d %H:%M:%S')}")
             time.sleep(CHECK_INTERVAL)
         except Exception as e:
-            logging.error(f"Error in main loop: {e}")
+            logger.error(f"Error in main loop: {e}")
             time.sleep(60)  # Wait a minute before retrying on error
 
 if __name__ == "__main__":
