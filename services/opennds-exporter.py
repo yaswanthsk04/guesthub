@@ -17,7 +17,6 @@ def parse_bytes(value):
     Convert human-readable byte strings into numeric values.
     Examples: '1.5 kB' -> 1536, '500 B' -> 500
     """
-    print("test")
     try:
         if 'kB' in value:
             # Convert kilobytes to bytes
