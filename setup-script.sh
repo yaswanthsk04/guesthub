@@ -14,6 +14,7 @@ pip install prometheus_client
 echo "Starting OpenWrt monitoring services"
 service dockerd enable
 service dockerd start
+service opennds enable
 service opennds start
 
 echo "Starting OpenWrt monitoring setup..."
