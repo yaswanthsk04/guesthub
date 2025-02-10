@@ -50,8 +50,8 @@ CORE_FILES = {
 # State file for tracking updates
 LAST_UPDATE_FILE = f"{LOCAL_BASE_DIR}/state/last_update"
 
-# Ensure prometheus directory exists
-os.makedirs(f"{LOCAL_BASE_DIR}/prometheus", exist_ok=True)
+# Ensure directories exist
+os.makedirs(f"{LOCAL_BASE_DIR}/docker/prometheus", exist_ok=True)
 
 def ensure_updates_dir():
     """Ensure updates directory exists"""
@@ -107,11 +107,6 @@ def check_core_files():
     docker_updates = []  # Track docker-related updates
     other_updates = []   # Track other updates
     
-    # Skip if we're in the middle of an update
-    if os.path.exists(f"{LOCAL_BASE_DIR}/update-checker.py.new"):
-        logger.info("Update in progress, skipping check")
-        return
-    
     # First pass: Check all files and prepare updates
     for github_path in UPDATE_ORDER:
         local_path = CORE_FILES[github_path]
@@ -152,7 +147,7 @@ def check_core_files():
         logger.info("Processing docker-related updates together...")
         for update_file in docker_updates:
             result = subprocess.run(
-                [f"{LOCAL_BASE_DIR}/update-executor.sh", update_file, "--batch"],
+                [f"{LOCAL_BASE_DIR}/update-system/executor.sh", update_file, "--batch"],
                 capture_output=True,
                 text=True
             )
@@ -178,7 +173,7 @@ def check_core_files():
     # Handle other updates normally
     for update_file in other_updates:
         result = subprocess.run(
-            [f"{LOCAL_BASE_DIR}/update-executor.sh", update_file],
+            [f"{LOCAL_BASE_DIR}/update-system/executor.sh", update_file],
             capture_output=True,
             text=True
         )
@@ -247,7 +242,7 @@ def check_update_scripts():
             if not os.path.exists(local_path):
                 logger.info(f"Found new update: {update}")
                 if download_file(f"updates/{update}", local_path):
-                    subprocess.run([f"{LOCAL_BASE_DIR}/update-executor.sh", local_path])
+                    subprocess.run([f"{LOCAL_BASE_DIR}/update-system/executor.sh", local_path])
     except Exception as e:
         logger.error(f"Error checking update scripts: {e}")
 
