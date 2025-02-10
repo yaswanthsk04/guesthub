@@ -12,6 +12,12 @@ exec 1> >(tee "setup.log") 2>&1
 echo "=== Setup Script Started at $(date) ==="
 echo "Welcome to the installation of Gesthub v0.1.0"
 
+uci set system.@system[0].timezone='CET-1CEST,M3.5.0,M10.5.0/3'
+uci set system.@system[0].zonename='Europe/Berlin'
+uci commit system
+/etc/init.d/system restart
+
+
 # Enable and restart WiFi
 uci set wireless.radio0.disabled=0
 wifi reload

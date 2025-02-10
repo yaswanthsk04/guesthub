@@ -24,7 +24,7 @@ ingester:
 
 schema_config:
   configs:
-    - from: 2025-02-11
+    - from: 2025-02-01
       store: tsdb
       object_store: filesystem
       schema: v13
