@@ -148,7 +148,7 @@
       },
       "targets": [
         {
-          "expr": "{job=\"update_checker\"}",
+          "expr": "{job=\"update_checker\"} | line_format \"{{.line}}\"",
           "refId": "A"
         }
       ],

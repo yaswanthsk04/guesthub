@@ -18,12 +18,7 @@ scrape_configs:
           __path__: /var/log/update-checker.log
     pipeline_stages:
       - regex:
-          expression: '^\[(?P<timestamp>[^\]]+)\] update-checker: (?P<level>[A-Z]+) - (?P<message>.+)$'
-      - labels:
-          level:
-          timestamp:
+          expression: '^\[(?P<timestamp>[^\]]+)\].*$'
       - timestamp:
           source: timestamp
           format: '2006-01-02 15:04:05'
-      - output:
-          source: message
