@@ -145,30 +145,30 @@ def check_core_files():
     if docker_updates:
         # If we have docker-related updates, handle them together
         logger.info("Processing docker-related updates together...")
-        for update_file in docker_updates:
-            result = subprocess.run(
-                [f"{LOCAL_BASE_DIR}/update-system/executor.sh", update_file, "--batch"],
-                capture_output=True,
-                text=True
-            )
-            if result.stdout:
-                logger.info(f"Update executor output: {result.stdout}")
-            if result.stderr:
-                # Split on both newlines and container operations
-                stderr_text = result.stderr
-                for split_term in ['container', '\n']:
-                    stderr_text = stderr_text.replace(split_term, '\n' + split_term)
-                stderr_lines = [line.strip() for line in stderr_text.splitlines() if line.strip()]
-                
-                for line in stderr_lines:
-                    # Check for normal docker operations
-                    if any(normal_msg in line.lower() for normal_msg in 
-                          ['stopping', 'removing', 'removed', 'starting', 'started', 'done']):
-                        logger.info(f"Docker compose: {line}")
-                    else:
-                        logger.error(f"Update executor error: {line}")
-            if result.returncode != 0:
-                logger.error(f"Update failed for {update_file}")
+        # Execute all docker updates in a single batch
+        result = subprocess.run(
+            [f"{LOCAL_BASE_DIR}/update-system/executor.sh", "--batch"] + docker_updates,
+            capture_output=True,
+            text=True
+        )
+        if result.stdout:
+            logger.info(f"Update executor output: {result.stdout}")
+        if result.stderr:
+            # Split on both newlines and container operations
+            stderr_text = result.stderr
+            for split_term in ['container', '\n']:
+                stderr_text = stderr_text.replace(split_term, '\n' + split_term)
+            stderr_lines = [line.strip() for line in stderr_text.splitlines() if line.strip()]
+            
+            for line in stderr_lines:
+                # Check for normal docker operations (expanded list)
+                if any(normal_msg in line.lower() for normal_msg in 
+                      ['stopping', 'stopped', 'removing', 'removed', 'starting', 'started', 'done', 'creating', 'created']):
+                    logger.info(f"Docker compose: {line}")
+                else:
+                    logger.error(f"Update executor error: {line}")
+        if result.returncode != 0:
+            logger.error(f"Update failed for docker-related updates")
     
     # Handle other updates normally
     for update_file in other_updates:
@@ -187,9 +187,9 @@ def check_core_files():
                 stderr_lines = [line.strip() for line in stderr_text.splitlines() if line.strip()]
                 
                 for line in stderr_lines:
-                    # Check for normal docker operations
+                    # Check for normal docker operations (expanded list)
                     if any(normal_msg in line.lower() for normal_msg in 
-                          ['stopping', 'removing', 'removed', 'starting', 'started', 'done']):
+                          ['stopping', 'stopped', 'removing', 'removed', 'starting', 'started', 'done', 'creating', 'created']):
                         logger.info(f"Docker compose: {line}")
                     else:
                         logger.error(f"Update executor error: {line}")
