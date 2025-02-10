@@ -1,6 +1,15 @@
 #!/bin/sh
 
+# Create monitoring directory first
+mkdir -p /usr/local/monitoring
+chmod 755 /usr/local/monitoring
+cd /usr/local/monitoring
+
+# Setup logging
+exec 1> >(tee "setup.log") 2>&1
+
 # OpenWrt Network Monitoring Setup Script
+echo "=== Setup Script Started at $(date) ==="
 echo "Welcome to the installation of Gesthub v0.1.0"
 
 # Enable and restart WiFi
@@ -18,11 +27,8 @@ service opennds enable
 service opennds start
 
 echo "Starting OpenWrt monitoring setup..."
-# Create directory structure with proper permissions
+# Create remaining directory structure
 echo "Creating directory structure..."
-mkdir -p /usr/local/monitoring
-chmod 755 /usr/local/monitoring
-cd /usr/local/monitoring
 
 # Create main directories
 mkdir -p update-system docker/prometheus docker/loki docker/promtail exporters updates backups state
