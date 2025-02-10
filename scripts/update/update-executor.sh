@@ -215,6 +215,37 @@ handle_opennds_exporter() {
     fi
 }
 
+# Function to handle verify-setup.sh updates
+handle_verify_setup() {
+    local file="$1"
+    log_message "INFO" "Updating verify-setup script..."
+    
+    # Create backup
+    create_backup "/usr/local/monitoring/setup-verify/verify-setup.sh"
+    
+    # Stop service
+    log_message "INFO" "Stopping verify-setup service..."
+    /etc/init.d/verify-setup stop
+    
+    # Update file
+    log_message "INFO" "Updating verify-setup.sh file..."
+    cp "$file" /usr/local/monitoring/setup-verify/verify-setup.sh
+    chmod +x /usr/local/monitoring/setup-verify/verify-setup.sh
+    
+    # Start service
+    log_message "INFO" "Starting verify-setup service..."
+    /etc/init.d/verify-setup start
+    
+    # Verify service is running
+    if /etc/init.d/verify-setup status | grep -q "running"; then
+        log_message "INFO" "Verify-setup service updated and running successfully"
+        return 0
+    else
+        log_error "Verify-setup service failed to start"
+        return 1
+    fi
+}
+
 # Function to handle batch docker updates
 handle_docker_batch() {
     shift # Skip the --batch flag
@@ -324,6 +355,9 @@ execute_update() {
                 ;;
             "opennds-exporter.py")
                 handle_opennds_exporter "$update_file"
+                ;;
+            "verify-setup.sh")
+                handle_verify_setup "$update_file"
                 ;;
             *)
                 log_error "Unknown file type: $base_name"

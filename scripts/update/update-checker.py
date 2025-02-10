@@ -42,10 +42,11 @@ CHECK_INTERVAL = 300  # Check every 5 minutes (safe for GitHub API limits)
 # Files to monitor in order of update priority
 UPDATE_ORDER = [
     'services/opennds-exporter.py',          # 1st: Update service components
-    'config/prometheus-config.yml',           # 2nd: Update monitoring config
-    'config/loki-config.yml',                # 3rd: Update Loki config
-    'config/promtail-config.yml',            # 4th: Update Promtail config
-    'config/docker-compose.yml'              # 5th: Update container setup last
+    'scripts/setup/verify-setup.sh',         # 2nd: Update verify-setup script
+    'config/prometheus-config.yml',           # 3rd: Update monitoring config
+    'config/loki-config.yml',                # 4th: Update Loki config
+    'config/promtail-config.yml',            # 5th: Update Promtail config
+    'config/docker-compose.yml'              # 6th: Update container setup last
 ]
 
 # Map files to their local paths
@@ -54,7 +55,8 @@ CORE_FILES = {
     'config/prometheus-config.yml': f'{LOCAL_BASE_DIR}/docker/prometheus/prometheus-config.yml',
     'config/loki-config.yml': f'{LOCAL_BASE_DIR}/docker/loki/loki-config.yml',
     'config/promtail-config.yml': f'{LOCAL_BASE_DIR}/docker/promtail/promtail-config.yml',
-    'services/opennds-exporter.py': f'{LOCAL_BASE_DIR}/exporters/opennds-exporter.py'
+    'services/opennds-exporter.py': f'{LOCAL_BASE_DIR}/exporters/opennds-exporter.py',
+    'scripts/setup/verify-setup.sh': f'{LOCAL_BASE_DIR}/setup-verify/verify-setup.sh'
 }
 
 # State file for tracking updates

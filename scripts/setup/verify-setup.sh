@@ -1,9 +1,11 @@
 #!/bin/sh
 
 # Set up logging
-LOG_FILE="/root/verify-setup.log"
+LOG_DIR="/usr/local/monitoring/setup-verify/logs"
+mkdir -p "$LOG_DIR"
+LOG_FILE="$LOG_DIR/verify-setup_$(date '+%Y%m%d_%H%M%S').log"
 {
-echo "\n=== System Verification Run - $(date) ===" 
+echo "\n=== System Verification Run - $(date '+%Y-%m-%d %H:%M:%S') ===" 
 echo "Performing post-reboot verification checks..."
 sleep 30  # Wait for all services to fully start
 
@@ -44,5 +46,5 @@ echo "\nVerifying Monitoring Services:"
 echo "\nVerification complete. Please review the output above for any errors."
 echo "=== Verification Completed at $(date) ==="
 echo "Log file available at: $LOG_FILE"
-echo "=== End of Verification Run ===\n"
-} 2>&1 | tee -a "$LOG_FILE"
+echo "=== End of Verification Run at $(date '+%Y-%m-%d %H:%M:%S') ===\n"
+} 2>&1 | tee "$LOG_FILE"

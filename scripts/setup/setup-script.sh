@@ -49,8 +49,8 @@ chmod 755 /usr/local/monitoring
 cd /usr/local/monitoring
 
 # Create main directories
-mkdir -p update-system docker/prometheus docker/loki docker/promtail exporters updates backups state
-chmod 755 update-system docker docker/prometheus docker/loki docker/promtail exporters updates backups state
+mkdir -p update-system docker/prometheus docker/loki docker/promtail exporters updates backups state setup-verify/logs
+chmod 755 update-system docker docker/prometheus docker/loki docker/promtail exporters updates backups state setup-verify
 
 # Set proper ownership
 chown -R root:root /usr/local/monitoring
@@ -70,12 +70,13 @@ prometheus-node-exporter-lua-wifi_stations
 
 # Download configuration files from GitHub
 echo "Downloading configuration files..."
+
 # Download and setup verification script
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/scripts/setup/verify-setup.sh -O /root/verify-setup.sh
-chmod +x /root/verify-setup.sh
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/scripts/setup/verify-setup.sh -O /usr/local/monitoring/setup-verify/verify-setup.sh
+chmod +x /usr/local/monitoring/setup-verify/verify-setup.sh
 
 # Download and setup verification service
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/services/verify-setup.service -O /etc/init.d/verify-setup
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/scripts/setup/verify-setup.service -O /etc/init.d/verify-setup
 chmod +x /etc/init.d/verify-setup
 /etc/init.d/verify-setup enable
 
