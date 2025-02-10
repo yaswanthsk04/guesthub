@@ -1,6 +1,18 @@
 #!/bin/sh
-# Template for updating core components (checker and executor)
-# Save as updateX in updates/ directory
+# Template for updating core components (checker.py and executor.sh)
+# 
+# HOW TO USE:
+# 1. Copy this template to updates/updateX (where X is next number)
+# 2. Replace v0.6.0 with target branch if different
+# 3. Test in safe environment first
+#
+# WHAT THIS DOES:
+# - Downloads new versions to /tmp
+# - Creates a delayed update script
+# - Schedules update for 5 minutes later
+# - Ensures safe update window
+# - Handles backups and permissions
+# - Self-cleans after successful update
 
 # Download new versions to temporary location
 wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/scripts/update/update-checker.py -O /tmp/checker.py.new

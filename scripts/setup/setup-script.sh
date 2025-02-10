@@ -70,7 +70,7 @@ uci commit prometheus-node-exporter-lua
 
 # Start Docker containers
 echo "Starting Docker containers..."
-cd /usr/local/monitoring
+cd /usr/local/monitoring/docker
 docker network create monitoring_network || true  # Create if doesn't exist
 docker-compose up -d
 
