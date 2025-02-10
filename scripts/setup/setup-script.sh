@@ -48,15 +48,15 @@ prometheus-node-exporter-lua-wifi_stations
 echo "Downloading configuration files..."
 wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/config/docker-compose.yml -O docker/docker-compose.yml
 chmod 644 docker/docker-compose.yml
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/config/prometheus-config.yml -O docker/prometheus/config.yml
-chmod 644 docker/prometheus/config.yml
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/services/opennds-exporter.py -O exporters/opennds.py
-chmod 755 exporters/opennds.py
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/config/prometheus-config.yml -O docker/prometheus/prometheus-config.yml
+chmod 644 docker/prometheus/prometheus-config.yml
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/services/opennds-exporter.py -O exporters/opennds-exporter.py
+chmod 755 exporters/opennds-exporter.py
 
 # Setup OpenNDS exporter service
 echo "Setting up OpenNDS exporter service..."
 wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/services/opennds-exporter.service -O /etc/init.d/opennds-exporter
-chmod +x /usr/local/monitoring/opennds-exporter.py
+chmod +x /usr/local/monitoring/exporters/opennds-exporter.py
 chmod +x /etc/init.d/opennds-exporter
 /etc/init.d/opennds-exporter enable
 /etc/init.d/opennds-exporter start

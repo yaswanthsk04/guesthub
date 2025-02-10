@@ -43,8 +43,8 @@ UPDATE_ORDER = [
 # Map files to their local paths
 CORE_FILES = {
     'config/docker-compose.yml': f'{LOCAL_BASE_DIR}/docker/docker-compose.yml',
-    'config/prometheus-config.yml': f'{LOCAL_BASE_DIR}/docker/prometheus/config.yml',
-    'services/opennds-exporter.py': f'{LOCAL_BASE_DIR}/exporters/opennds.py'
+    'config/prometheus-config.yml': f'{LOCAL_BASE_DIR}/docker/prometheus/prometheus-config.yml',
+    'services/opennds-exporter.py': f'{LOCAL_BASE_DIR}/exporters/opennds-exporter.py'
 }
 
 # State file for tracking updates

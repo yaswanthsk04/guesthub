@@ -76,10 +76,10 @@ handle_docker_compose() {
     fi
 }
 
-# Function to handle prometheus.yml updates
+# Function to handle prometheus config updates
 handle_prometheus() {
     local file="$1"
-    log_message "INFO" "Updating prometheus.yml..."
+    log_message "INFO" "Updating prometheus config..."
     cd /usr/local/monitoring/docker || return 1
     
     # Ensure prometheus directory exists
@@ -87,17 +87,16 @@ handle_prometheus() {
     chmod 755 prometheus
     
     # Create backup
-    create_backup "prometheus/config.yml"
+    create_backup "prometheus/prometheus-config.yml"
     
     # Stop all services
     log_message "INFO" "Stopping Docker services..."
     docker-compose down
     
     # Update file
-    log_message "INFO" "Updating prometheus.yml file..."
-    cp "$file" prometheus/config.yml
-    chmod 644 prometheus/config.yml
-    log_message "INFO" "Copied new prometheus config to: prometheus/prometheus.yml"
+    log_message "INFO" "Updating prometheus config file..."
+    cp "$file" prometheus/prometheus-config.yml
+    chmod 644 prometheus/prometheus-config.yml
     
     # Start all services
     log_message "INFO" "Starting Docker services..."
@@ -119,7 +118,7 @@ handle_opennds_exporter() {
     log_message "INFO" "Updating opennds-exporter..."
     
     # Create backup
-    create_backup "/usr/local/monitoring/exporters/opennds.py"
+    create_backup "/usr/local/monitoring/exporters/opennds-exporter.py"
     
     # Stop service
     log_message "INFO" "Stopping OpenNDS exporter..."
@@ -127,8 +126,8 @@ handle_opennds_exporter() {
     
     # Update file
     log_message "INFO" "Updating opennds-exporter.py file..."
-    cp "$file" /usr/local/monitoring/exporters/opennds.py
-    chmod +x /usr/local/monitoring/exporters/opennds.py
+    cp "$file" /usr/local/monitoring/exporters/opennds-exporter.py
+    chmod +x /usr/local/monitoring/exporters/opennds-exporter.py
     
     # Start service
     log_message "INFO" "Starting OpenNDS exporter..."
@@ -149,78 +148,48 @@ handle_docker_batch() {
     local file="$1"
     local is_batch="$2"
     
+    cd /usr/local/monitoring/docker || return 1
+    
+    # Stop services once for batch update
+    log_message "INFO" "Stopping Docker services for batch update..."
+    docker-compose down
+    
     if [[ $file == *"docker-compose.yml"* ]]; then
-        log_message "INFO" "Handling docker-compose.yml in batch mode..."
-        cd /usr/local/monitoring || return 1
-        
         # Create backup
         create_backup "docker-compose.yml"
-        
-        if [ "$is_batch" != "--batch" ]; then
-            # If not in batch mode, stop services
-            log_message "INFO" "Stopping Docker services..."
-            docker-compose down
-        fi
         
         # Update file
         log_message "INFO" "Updating docker-compose.yml file..."
         cp "$file" docker-compose.yml
-        rm -f "$file"  # Remove the .new file immediately
-        
-        if [ "$is_batch" != "--batch" ]; then
-            # If not in batch mode, start services
-            log_message "INFO" "Starting Docker services..."
-            docker-compose up -d
-            
-            # Verify services
-            if docker-compose ps | grep -q "Up"; then
-                log_message "INFO" "Docker services updated and running successfully"
-                return 0
-            else
-                log_error "Docker services failed to start"
-                return 1
-            fi
-        fi
-        return 0
-    elif [[ $file == *"prometheus.yml"* ]]; then
-        log_message "INFO" "Handling prometheus.yml in batch mode..."
-        cd /usr/local/monitoring || return 1
-        
+        rm -f "$file"
+    elif [[ $file == *"prometheus-config.yml"* ]]; then
         # Ensure prometheus directory exists
         mkdir -p prometheus
         chmod 755 prometheus
         
         # Create backup
-        create_backup "prometheus/prometheus.yml"
-        
-        if [ "$is_batch" != "--batch" ]; then
-            # If not in batch mode, stop services
-            log_message "INFO" "Stopping Docker services..."
-            docker-compose down
-        fi
+        create_backup "prometheus/prometheus-config.yml"
         
         # Update file
-        log_message "INFO" "Updating prometheus.yml file..."
-        cp "$file" prometheus/prometheus.yml
-        chmod 644 prometheus/prometheus.yml
-        rm -f "$file"  # Remove the .new file immediately
+        log_message "INFO" "Updating prometheus config file..."
+        cp "$file" prometheus/prometheus-config.yml
+        chmod 644 prometheus/prometheus-config.yml
+        rm -f "$file"
         
-        if [ "$is_batch" != "--batch" ]; then
-            # If not in batch mode, start services
-            log_message "INFO" "Starting Docker services..."
-            docker-compose up -d
-            
-            # Verify services
-            if docker-compose ps | grep -q "Up"; then
-                log_message "INFO" "Prometheus configuration updated and services running successfully"
-                return 0
-            else
-                log_error "Services failed to start after prometheus update"
-                return 1
-            fi
+        # Start services after all updates
+        log_message "INFO" "Starting Docker services..."
+        docker-compose up -d
+        
+        # Verify services
+        if docker-compose ps | grep -q "Up"; then
+            log_message "INFO" "Services started successfully after batch update"
+            return 0
+        else
+            log_error "Services failed to start after batch update"
+            return 1
         fi
-        return 0
     fi
+    return 0
 }
 
 # Function to execute an update file or handle specific file updates
@@ -238,21 +207,9 @@ execute_update() {
         base_name=$(basename "$update_file" .new)
         
         case "$base_name" in
-            "docker-compose.yml"|"prometheus.yml"|"prometheus/prometheus.yml")
+            "docker-compose.yml"|"prometheus-config.yml")
                 if [ "$is_batch" == "--batch" ]; then
                     handle_docker_batch "$update_file" "$is_batch"
-                    # If this is the last batch update, start services
-                    if [[ $update_file == *"prometheus.yml"* ]]; then
-                        log_message "INFO" "Batch updates complete, starting services..."
-                        cd /usr/local/monitoring || return 1
-                        docker-compose up -d
-                        if docker-compose ps | grep -q "Up"; then
-                            log_message "INFO" "Services started successfully after batch update"
-                        else
-                            log_error "Services failed to start after batch update"
-                            return 1
-                        fi
-                    fi
                 else
                     if [[ $base_name == "docker-compose.yml" ]]; then
                         handle_docker_compose "$update_file"
