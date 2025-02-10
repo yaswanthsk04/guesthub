@@ -1,0 +1,29 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: update_checker
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: update_checker
+          __path__: /var/log/update-checker.log
+    pipeline_stages:
+      - regex:
+          expression: '^\[(?P<timestamp>[^\]]+)\] update-checker: (?P<level>[A-Z]+) - (?P<message>.+)$'
+      - labels:
+          level:
+          timestamp:
+      - timestamp:
+          source: timestamp
+          format: '2006-01-02 15:04:05'
+      - output:
+          source: message

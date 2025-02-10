@@ -76,6 +76,78 @@ handle_docker_compose() {
     fi
 }
 
+# Function to handle loki config updates
+handle_loki() {
+    local file="$1"
+    log_message "INFO" "Updating loki config..."
+    cd /usr/local/monitoring/docker || return 1
+    
+    # Ensure loki directory exists
+    mkdir -p loki
+    chmod 755 loki
+    
+    # Create backup
+    create_backup "loki/loki-config.yml"
+    
+    # Stop all services
+    log_message "INFO" "Stopping Docker services..."
+    docker-compose down
+    
+    # Update file
+    log_message "INFO" "Updating loki config file..."
+    cp "$file" loki/loki-config.yml
+    chmod 644 loki/loki-config.yml
+    
+    # Start all services
+    log_message "INFO" "Starting Docker services..."
+    docker-compose up -d
+    
+    # Verify services are running
+    if docker-compose ps | grep -q "Up"; then
+        log_message "INFO" "Loki configuration updated and services running successfully"
+        return 0
+    else
+        log_error "Services failed to start after loki update"
+        return 1
+    fi
+}
+
+# Function to handle promtail config updates
+handle_promtail() {
+    local file="$1"
+    log_message "INFO" "Updating promtail config..."
+    cd /usr/local/monitoring/docker || return 1
+    
+    # Ensure promtail directory exists
+    mkdir -p promtail
+    chmod 755 promtail
+    
+    # Create backup
+    create_backup "promtail/promtail-config.yml"
+    
+    # Stop all services
+    log_message "INFO" "Stopping Docker services..."
+    docker-compose down
+    
+    # Update file
+    log_message "INFO" "Updating promtail config file..."
+    cp "$file" promtail/promtail-config.yml
+    chmod 644 promtail/promtail-config.yml
+    
+    # Start all services
+    log_message "INFO" "Starting Docker services..."
+    docker-compose up -d
+    
+    # Verify services are running
+    if docker-compose ps | grep -q "Up"; then
+        log_message "INFO" "Promtail configuration updated and services running successfully"
+        return 0
+    else
+        log_error "Services failed to start after promtail update"
+        return 1
+    fi
+}
+
 # Function to handle prometheus config updates
 handle_prometheus() {
     local file="$1"
@@ -177,6 +249,32 @@ handle_docker_batch() {
             cp "$file" prometheus/prometheus-config.yml
             chmod 644 prometheus/prometheus-config.yml
             rm -f "$file"
+        elif [[ $file == *"loki-config.yml"* ]]; then
+            # Ensure loki directory exists
+            mkdir -p loki
+            chmod 755 loki
+            
+            # Create backup
+            create_backup "loki/loki-config.yml"
+            
+            # Update file
+            log_message "INFO" "Updating loki config file..."
+            cp "$file" loki/loki-config.yml
+            chmod 644 loki/loki-config.yml
+            rm -f "$file"
+        elif [[ $file == *"promtail-config.yml"* ]]; then
+            # Ensure promtail directory exists
+            mkdir -p promtail
+            chmod 755 promtail
+            
+            # Create backup
+            create_backup "promtail/promtail-config.yml"
+            
+            # Update file
+            log_message "INFO" "Updating promtail config file..."
+            cp "$file" promtail/promtail-config.yml
+            chmod 644 promtail/promtail-config.yml
+            rm -f "$file"
         fi
     done
     
@@ -209,14 +307,18 @@ execute_update() {
         base_name=$(basename "$update_file" .new)
         
         case "$base_name" in
-            "docker-compose.yml"|"prometheus-config.yml")
+            "docker-compose.yml"|"prometheus-config.yml"|"loki-config.yml"|"promtail-config.yml")
                 if [ "$is_batch" == "--batch" ]; then
                     handle_docker_batch "$update_file" "$is_batch"
                 else
                     if [[ $base_name == "docker-compose.yml" ]]; then
                         handle_docker_compose "$update_file"
-                    else
+                    elif [[ $base_name == "prometheus-config.yml" ]]; then
                         handle_prometheus "$update_file"
+                    elif [[ $base_name == "loki-config.yml" ]]; then
+                        handle_loki "$update_file"
+                    elif [[ $base_name == "promtail-config.yml" ]]; then
+                        handle_promtail "$update_file"
                     fi
                 fi
                 ;;

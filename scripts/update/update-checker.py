@@ -6,6 +6,12 @@ import os
 import logging
 import subprocess
 from datetime import datetime, timedelta
+from prometheus_client import start_http_server, Gauge, Counter
+
+# Prometheus metrics
+UPDATE_STATUS = Gauge('update_status', 'Update status by component (1=success, 0=failure)', ['component'])
+LAST_UPDATE_TIME = Gauge('last_update_timestamp', 'Last update timestamp by component', ['component'])
+UPDATE_COUNT = Counter('update_total', 'Total number of updates', ['component', 'status'])
 
 # Setup logging with detailed timestamp format
 class CustomFormatter(logging.Formatter):
@@ -37,13 +43,17 @@ CHECK_INTERVAL = 300  # Check every 5 minutes (safe for GitHub API limits)
 UPDATE_ORDER = [
     'services/opennds-exporter.py',          # 1st: Update service components
     'config/prometheus-config.yml',           # 2nd: Update monitoring config
-    'config/docker-compose.yml'              # 3rd: Update container setup last
+    'config/loki-config.yml',                # 3rd: Update Loki config
+    'config/promtail-config.yml',            # 4th: Update Promtail config
+    'config/docker-compose.yml'              # 5th: Update container setup last
 ]
 
 # Map files to their local paths
 CORE_FILES = {
     'config/docker-compose.yml': f'{LOCAL_BASE_DIR}/docker/docker-compose.yml',
     'config/prometheus-config.yml': f'{LOCAL_BASE_DIR}/docker/prometheus/prometheus-config.yml',
+    'config/loki-config.yml': f'{LOCAL_BASE_DIR}/docker/loki/loki-config.yml',
+    'config/promtail-config.yml': f'{LOCAL_BASE_DIR}/docker/promtail/promtail-config.yml',
     'services/opennds-exporter.py': f'{LOCAL_BASE_DIR}/exporters/opennds-exporter.py'
 }
 
@@ -52,6 +62,8 @@ LAST_UPDATE_FILE = f"{LOCAL_BASE_DIR}/state/last_update"
 
 # Ensure directories exist
 os.makedirs(f"{LOCAL_BASE_DIR}/docker/prometheus", exist_ok=True)
+os.makedirs(f"{LOCAL_BASE_DIR}/docker/loki", exist_ok=True)
+os.makedirs(f"{LOCAL_BASE_DIR}/docker/promtail", exist_ok=True)
 
 def ensure_updates_dir():
     """Ensure updates directory exists"""
@@ -101,6 +113,13 @@ def download_file(github_path, local_path):
         logger.error(f"Error downloading {github_path}: {e}")
         return False
 
+def update_metrics(component, success):
+    """Update Prometheus metrics for a component"""
+    status_value = 1 if success else 0
+    UPDATE_STATUS.labels(component=component).set(status_value)
+    LAST_UPDATE_TIME.labels(component=component).set(time.time())
+    UPDATE_COUNT.labels(component=component, status='success' if success else 'failure').inc()
+
 def check_core_files():
     """Check and update core configuration files in specific order"""
     updates_needed = False
@@ -130,7 +149,7 @@ def check_core_files():
                     logger.info(f"Created temporary file at {tmp_path}")
                     
                     # Group updates
-                    if github_path in ['config/docker-compose.yml', 'config/prometheus-config.yml']:
+                    if github_path in ['config/docker-compose.yml', 'config/prometheus-config.yml', 'config/loki-config.yml', 'config/promtail-config.yml']:
                         docker_updates.append(tmp_path)
                     else:
                         other_updates.append(tmp_path)
@@ -167,8 +186,13 @@ def check_core_files():
                     logger.info(f"Docker compose: {line}")
                 else:
                     logger.error(f"Update executor error: {line}")
-        if result.returncode != 0:
+        success = result.returncode == 0
+        if not success:
             logger.error(f"Update failed for docker-related updates")
+        # Update metrics for docker components
+        for update_file in docker_updates:
+            component = os.path.basename(update_file).replace('.new', '')
+            update_metrics(component, success)
     
     # Handle other updates normally
     for update_file in other_updates:
@@ -193,8 +217,12 @@ def check_core_files():
                         logger.info(f"Docker compose: {line}")
                     else:
                         logger.error(f"Update executor error: {line}")
-        if result.returncode != 0:
+        success = result.returncode == 0
+        if not success:
             logger.error(f"Update failed for {update_file}")
+        # Update metrics for this component
+        component = os.path.basename(update_file).replace('.new', '')
+        update_metrics(component, success)
 
 def get_remote_updates():
     """Get list of update files from GitHub"""
@@ -261,12 +289,8 @@ def check_for_updates():
     
     logger.info("Update check cycle completed")
 
-def main():
-    logger.info("********************************")
-    logger.info("Update checker starting - Version 0.1.0 - TEST UPDATE")
-    logger.info("********************************")
-    
-    # Clean up any leftover .new files from previous runs
+def cleanup_temp_files():
+    """Clean up any leftover .new files"""
     for file_path in CORE_FILES.values():
         new_file = f"{file_path}.new"
         if os.path.exists(new_file):
@@ -275,13 +299,32 @@ def main():
                 logger.info(f"Cleaned up leftover file: {new_file}")
             except Exception as e:
                 logger.error(f"Failed to clean up {new_file}: {e}")
+
+def main():
+    logger.info("********************************")
+    logger.info("Update checker starting - Version 0.1.0 - TEST UPDATE")
+    logger.info("********************************")
     
+    # Start Prometheus metrics server
+    start_http_server(9300)
+    logger.info("Started Prometheus metrics server on port 9300")
+    
+    # Initial cleanup of any leftover files
+    cleanup_temp_files()
+    
+    # Perform immediate check on startup
+    check_for_updates()
+    cleanup_temp_files()  # Clean up after initial check
+    
+    # Enter the main update loop
     while True:
         try:
-            check_for_updates()
             next_check = datetime.now() + timedelta(seconds=CHECK_INTERVAL)
             logger.info(f"Next check scheduled for: {next_check.strftime('%Y-%m-%d %H:%M:%S')}")
             time.sleep(CHECK_INTERVAL)
+            
+            check_for_updates()
+            cleanup_temp_files()  # Clean up after each update cycle
         except Exception as e:
             logger.error(f"Error in main loop: {e}")
             time.sleep(60)  # Wait a minute before retrying on error

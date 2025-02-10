@@ -25,8 +25,8 @@ chmod 755 /usr/local/monitoring
 cd /usr/local/monitoring
 
 # Create main directories
-mkdir -p update-system docker/prometheus exporters updates backups state
-chmod 755 update-system docker docker/prometheus exporters updates backups state
+mkdir -p update-system docker/prometheus docker/loki docker/promtail exporters updates backups state
+chmod 755 update-system docker docker/prometheus docker/loki docker/promtail exporters updates backups state
 
 # Set proper ownership
 chown -R root:root /usr/local/monitoring
@@ -50,6 +50,10 @@ wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/confi
 chmod 644 docker/docker-compose.yml
 wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/config/prometheus-config.yml -O docker/prometheus/prometheus-config.yml
 chmod 644 docker/prometheus/prometheus-config.yml
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/config/loki-config.yml -O docker/loki/loki-config.yml
+chmod 644 docker/loki/loki-config.yml
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/config/promtail-config.yml -O docker/promtail/promtail-config.yml
+chmod 644 docker/promtail/promtail-config.yml
 wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/services/opennds-exporter.py -O exporters/opennds-exporter.py
 chmod 755 exporters/opennds-exporter.py
 
