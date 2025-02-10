@@ -312,6 +312,16 @@ def main():
     # Initial cleanup of any leftover files
     cleanup_temp_files()
     
+    # Initialize metrics for all components
+    for github_path in UPDATE_ORDER:
+        component = os.path.basename(CORE_FILES[github_path])
+        local_path = CORE_FILES[github_path]
+        # Set initial status based on file existence
+        initial_status = 1 if os.path.exists(local_path) else 0
+        UPDATE_STATUS.labels(component=component).set(initial_status)
+        LAST_UPDATE_TIME.labels(component=component).set(time.time())
+        UPDATE_COUNT.labels(component=component, status='success' if initial_status else 'failure').inc()
+    
     # Perform immediate check on startup
     check_for_updates()
     cleanup_temp_files()  # Clean up after initial check
