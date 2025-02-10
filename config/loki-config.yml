@@ -36,7 +36,7 @@ limits_config:
 
 chunk_store_config:
   chunk_cache_config:
-    fifocache:
+    embedded-cache:
       # Maximum number of items the cache can store
       max_size_items: 1024
       # How long items in the cache remain valid
