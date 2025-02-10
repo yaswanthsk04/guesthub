@@ -84,8 +84,8 @@ echo "Container restart policy set to 'always' - will auto-start after reboot"
 echo "Setting up automatic update system..."
 
 # Download update system components with proper permissions
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/scripts/update/update-checker.py -O /usr/local/monitoring/update-system/checker.py
-chmod 755 /usr/local/monitoring/update-system/checker.py
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/scripts/update/update-checker.py -O /usr/local/monitoring/update-system/update-checker.py
+chmod 755 /usr/local/monitoring/update-system/update-checker.py
 
 wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/scripts/update/update-checker.service -O /etc/init.d/update-checker
 chmod 755 /etc/init.d/update-checker
