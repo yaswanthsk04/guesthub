@@ -72,7 +72,8 @@ prometheus-node-exporter-lua-wifi_stations
 echo "Downloading configuration files..."
 
 # Create Grafana provisioning directories
-mkdir -p docker/grafana/provisioning/{datasources,dashboards}
+mkdir -p docker/grafana/provisioning/datasources
+mkdir -p docker/grafana/provisioning/dashboards
 chmod -R 755 docker/grafana
 
 # Download configuration files
