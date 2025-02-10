@@ -71,6 +71,24 @@ prometheus-node-exporter-lua-wifi_stations
 # Download configuration files from GitHub
 echo "Downloading configuration files..."
 
+# Create Grafana provisioning directories
+mkdir -p docker/grafana/provisioning/{datasources,dashboards}
+chmod -R 755 docker/grafana
+
+# Download configuration files
+echo "Downloading Grafana provisioning configurations..."
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/config/grafana/provisioning/datasources/datasource.yml -O docker/grafana/provisioning/datasources/datasource.yml
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/config/grafana/provisioning/dashboards/dashboard.yml -O docker/grafana/provisioning/dashboards/dashboard.yml
+chmod 644 docker/grafana/provisioning/datasources/datasource.yml
+chmod 644 docker/grafana/provisioning/dashboards/dashboard.yml
+
+# Download Grafana dashboards
+echo "Downloading Grafana dashboards..."
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/dashboard/update_status_dashboard.json -O docker/grafana/provisioning/dashboards/update_status_dashboard.json
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/dashboard/system_dashboard.json -O docker/grafana/provisioning/dashboards/system_dashboard.json
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/dashboard/Network_dashboard_v3.json -O docker/grafana/provisioning/dashboards/Network_dashboard_v3.json
+chmod 644 docker/grafana/provisioning/dashboards/*.json
+
 # Download and setup verification script
 wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/scripts/setup/verify-setup.sh -O /usr/local/monitoring/setup-verify/verify-setup.sh
 chmod +x /usr/local/monitoring/setup-verify/verify-setup.sh
