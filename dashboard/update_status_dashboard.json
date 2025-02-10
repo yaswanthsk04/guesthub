@@ -148,7 +148,7 @@
       },
       "targets": [
         {
-          "expr": "{job=\"update_checker\"} | json | level=~\"INFO|ERROR\"",
+          "expr": "{job=\"update_checker\"}",
           "refId": "A"
         }
       ],
