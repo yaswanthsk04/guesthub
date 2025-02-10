@@ -46,16 +46,16 @@ prometheus-node-exporter-lua-wifi_stations
 
 # Download configuration files from GitHub
 echo "Downloading configuration files..."
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/main/config/docker-compose.yml -O docker/docker-compose.yml
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/config/docker-compose.yml -O docker/docker-compose.yml
 chmod 644 docker/docker-compose.yml
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/main/config/prometheus-config.yml -O docker/prometheus/config.yml
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/config/prometheus-config.yml -O docker/prometheus/config.yml
 chmod 644 docker/prometheus/config.yml
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/main/services/opennds-exporter.py -O exporters/opennds.py
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/services/opennds-exporter.py -O exporters/opennds.py
 chmod 755 exporters/opennds.py
 
 # Setup OpenNDS exporter service
 echo "Setting up OpenNDS exporter service..."
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/main/services/opennds-exporter.service -O /etc/init.d/opennds-exporter
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/services/opennds-exporter.service -O /etc/init.d/opennds-exporter
 chmod +x /usr/local/monitoring/opennds-exporter.py
 chmod +x /etc/init.d/opennds-exporter
 /etc/init.d/opennds-exporter enable
@@ -84,30 +84,19 @@ echo "Container restart policy set to 'always' - will auto-start after reboot"
 echo "Setting up automatic update system..."
 
 # Download update system components with proper permissions
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/main/scripts/update/update-checker.py -O /usr/local/monitoring/update-system/checker.py
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/scripts/update/update-checker.py -O /usr/local/monitoring/update-system/checker.py
 chmod 755 /usr/local/monitoring/update-system/checker.py
 
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/main/scripts/update/update-checker.service -O /etc/init.d/update-checker
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/scripts/update/update-checker.service -O /etc/init.d/update-checker
 chmod 755 /etc/init.d/update-checker
 
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/main/scripts/update/update-executor.sh -O /usr/local/monitoring/update-system/executor.sh
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/scripts/update/update-executor.sh -O /usr/local/monitoring/update-system/executor.sh
 chmod 755 /usr/local/monitoring/update-system/executor.sh
 
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/main/scripts/update/update-executor-handler.py -O /usr/local/monitoring/update-system/executor-handler.py
-chmod 755 /usr/local/monitoring/update-system/executor-handler.py
-
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/main/scripts/update/monitor-update-checker.sh -O /usr/local/monitoring/update-system/monitor.sh
-chmod 755 /usr/local/monitoring/update-system/monitor.sh
-
-# Set up cron job for monitor script
-echo "*/1 * * * * /usr/local/monitoring/monitor-update-checker.sh" > /etc/crontabs/root
-/etc/init.d/cron restart
 
 # Start update checker service
 /etc/init.d/update-checker enable
 /etc/init.d/update-checker start
-
-echo "Monitor script installed and cron job configured"
 
 echo "Setup complete!"
 echo "Access Grafana at http://your-ip:3000 (default credentials: admin/changeme)"

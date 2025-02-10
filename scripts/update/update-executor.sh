@@ -1,7 +1,7 @@
 #!/bin/bash
 # Update executor script
 # This script looks for and executes numbered update files
-# Note: This script's own updates are handled by update-executor-handler.py
+# Note: Core component (checker and executor) updates are handled by update scripts
 
 UPDATES_DIR="/usr/local/monitoring/updates"
 LAST_UPDATE_FILE="/usr/local/monitoring/state/last_update"
@@ -144,35 +144,6 @@ handle_opennds_exporter() {
     fi
 }
 
-# Function to handle update-checker.py updates
-handle_update_checker() {
-    local file="$1"
-    log_message "INFO" "********************************"
-    log_message "INFO" "Updating update-checker.py - TEST UPDATE"
-    log_message "INFO" "********************************"
-    
-    # Create backup
-    create_backup "/usr/local/monitoring/update-system/checker.py"
-    
-    # Stop service and kill any remaining processes
-    log_message "INFO" "Stopping update checker service..."
-    /etc/init.d/update-checker stop
-    sleep 2
-    pkill -f "update-checker.py"
-    
-    # Update file
-    log_message "INFO" "Installing new update checker..."
-    cp "$file" /usr/local/monitoring/update-system/checker.py
-    chmod +x /usr/local/monitoring/update-system/checker.py
-    rm -f "$file"  # Remove the .new file immediately
-    
-    # Let cron job handle the restart
-    log_message "INFO" "Update complete - cron job will restart service"
-    
-    log_message "INFO" "Update checker updated successfully"
-    return 0
-}
-
 # Function to handle batch docker updates
 handle_docker_batch() {
     local file="$1"
@@ -292,9 +263,6 @@ execute_update() {
                 ;;
             "opennds-exporter.py")
                 handle_opennds_exporter "$update_file"
-                ;;
-            "update-checker.py")
-                handle_update_checker "$update_file"
                 ;;
             *)
                 log_error "Unknown file type: $base_name"
