@@ -6,6 +6,26 @@ uci set system.@system[0].timezone='CET-1CEST,M3.5.0,M10.5.0/3'
 uci set system.@system[0].zonename='Europe/Berlin'
 uci commit system
 /etc/init.d/system restart
+sleep 10  # Wait for system to stabilize
+
+# Configure network settings
+echo "Setting up network..."
+uci set network.lan.netmask='255.255.254.0'
+uci commit network
+
+# Configure DHCP settings
+uci set dhcp.lan.start='11'       
+uci set dhcp.lan.limit='500'      
+   
+uci add dhcp host
+uci set dhcp.@host[-1].mac='5C:A6:E6:D8:CC:B2'   
+uci set dhcp.@host[-1].ip='192.168.98.2'         
+uci set dhcp.@host[-1].name='AP1-TP-LINK'    
+uci commit dhcp
+
+service network restart
+service dnsmasq restart
+sleep 10  # Wait for network to stabilize
 
 # Enable and restart WiFi
 uci set wireless.radio0.disabled=0
@@ -50,6 +70,15 @@ prometheus-node-exporter-lua-wifi_stations
 
 # Download configuration files from GitHub
 echo "Downloading configuration files..."
+# Download and setup verification script
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/scripts/setup/verify-setup.sh -O /root/verify-setup.sh
+chmod +x /root/verify-setup.sh
+
+# Download and setup verification service
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/services/verify-setup.service -O /etc/init.d/verify-setup
+chmod +x /etc/init.d/verify-setup
+/etc/init.d/verify-setup enable
+
 wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/config/docker-compose.yml -O docker/docker-compose.yml
 chmod 644 docker/docker-compose.yml
 wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/config/prometheus-config.yml -O docker/prometheus/prometheus-config.yml
@@ -110,3 +139,7 @@ echo "Setup complete!"
 echo "Access Grafana at http://your-ip:3000 (default credentials: admin/changeme)"
 echo "Access Prometheus at http://your-ip:9090"
 echo "Automatic updates are enabled and will check hourly"
+
+echo "Rebooting system to apply all changes..."
+sleep 5
+reboot
