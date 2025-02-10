@@ -3,12 +3,12 @@
 # Create monitoring directory first
 mkdir -p /usr/local/monitoring
 chmod 755 /usr/local/monitoring
+
+# Setup logging with proper terminal capture
+script -q -c "/bin/sh -c '
+# OpenWrt Network Monitoring Setup Script
 cd /usr/local/monitoring
 
-# Setup logging
-exec 1> >(tee "setup.log") 2>&1
-
-# OpenWrt Network Monitoring Setup Script
 echo "=== Setup Script Started at $(date) ==="
 echo "Welcome to the installation of Gesthub v0.1.0"
 
@@ -118,3 +118,4 @@ echo "Setup complete!"
 echo "Access Grafana at http://your-ip:3000 (default credentials: admin/changeme)"
 echo "Access Prometheus at http://your-ip:9090"
 echo "Automatic updates are enabled and will check hourly"
+'" /usr/local/monitoring/setup.log
