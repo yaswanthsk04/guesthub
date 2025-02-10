@@ -1,22 +1,11 @@
 #!/bin/sh
 
-# Create monitoring directory first
-mkdir -p /usr/local/monitoring
-chmod 755 /usr/local/monitoring
-
-# Setup logging with proper terminal capture
-script -q -c "/bin/sh -c '
 # OpenWrt Network Monitoring Setup Script
-cd /usr/local/monitoring
-
-echo "=== Setup Script Started at $(date) ==="
 echo "Welcome to the installation of Gesthub v0.1.0"
-
 uci set system.@system[0].timezone='CET-1CEST,M3.5.0,M10.5.0/3'
 uci set system.@system[0].zonename='Europe/Berlin'
 uci commit system
 /etc/init.d/system restart
-
 
 # Enable and restart WiFi
 uci set wireless.radio0.disabled=0
@@ -33,8 +22,11 @@ service opennds enable
 service opennds start
 
 echo "Starting OpenWrt monitoring setup..."
-# Create remaining directory structure
+# Create directory structure with proper permissions
 echo "Creating directory structure..."
+mkdir -p /usr/local/monitoring
+chmod 755 /usr/local/monitoring
+cd /usr/local/monitoring
 
 # Create main directories
 mkdir -p update-system docker/prometheus docker/loki docker/promtail exporters updates backups state
@@ -118,4 +110,3 @@ echo "Setup complete!"
 echo "Access Grafana at http://your-ip:3000 (default credentials: admin/changeme)"
 echo "Access Prometheus at http://your-ip:9090"
 echo "Automatic updates are enabled and will check hourly"
-'" /usr/local/monitoring/setup.log
