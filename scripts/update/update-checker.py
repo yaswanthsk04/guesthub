@@ -35,7 +35,7 @@ console_handler.setFormatter(CustomFormatter(datefmt='%Y-%m-%d %H:%M:%S'))
 logger.addHandler(console_handler)
 
 # Configuration
-GITHUB_RAW_BASE = "https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0"
+GITHUB_RAW_BASE = "https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0"
 LOCAL_BASE_DIR = "/usr/local/monitoring"
 CHECK_INTERVAL = 300  # Check every 5 minutes (safe for GitHub API limits)
 
@@ -230,7 +230,7 @@ def get_remote_updates():
     """Get list of update files from GitHub"""
     try:
         # Using GitHub API to list directory contents
-        api_url = "https://api.github.com/repos/yaswanthsk04/guesthub_v0.1.0/contents/updates"
+        api_url = "https://api.github.com/repos/yaswanthsk04/guesthub/contents/updates"
         response = requests.get(api_url)
         
         # If directory doesn't exist, no updates available

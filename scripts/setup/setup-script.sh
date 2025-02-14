@@ -78,41 +78,41 @@ chmod -R 755 docker/grafana
 
 # Download configuration files
 echo "Downloading Grafana provisioning configurations..."
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/config/grafana/provisioning/datasources/datasource.yml -O docker/grafana/provisioning/datasources/datasource.yml
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/config/grafana/provisioning/dashboards/dashboard.yml -O docker/grafana/provisioning/dashboards/dashboard.yml
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0/config/grafana/provisioning/datasources/datasource.yml -O docker/grafana/provisioning/datasources/datasource.yml
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0/config/grafana/provisioning/dashboards/dashboard.yml -O docker/grafana/provisioning/dashboards/dashboard.yml
 chmod 644 docker/grafana/provisioning/datasources/datasource.yml
 chmod 644 docker/grafana/provisioning/dashboards/dashboard.yml
 
 # Download Grafana dashboards
 echo "Downloading Grafana dashboards..."
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/dashboard/update_status_dashboard.json -O docker/grafana/provisioning/dashboards/update_status_dashboard.json
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/dashboard/System_Dashboard.json -O docker/grafana/provisioning/dashboards/system_dashboard.json
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/dashboard/Network_dashboard_v3.json -O docker/grafana/provisioning/dashboards/Network_dashboard_v3.json
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0/dashboard/update_status_dashboard.json -O docker/grafana/provisioning/dashboards/update_status_dashboard.json
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0/dashboard/System_Dashboard.json -O docker/grafana/provisioning/dashboards/system_dashboard.json
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0/dashboard/Network_dashboard_v3.json -O docker/grafana/provisioning/dashboards/Network_dashboard_v3.json
 chmod 644 docker/grafana/provisioning/dashboards/*.json
 
 # Download and setup verification script
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/scripts/setup/verify-setup.sh -O /usr/local/monitoring/setup-verify/verify-setup.sh
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0/scripts/setup/verify-setup.sh -O /usr/local/monitoring/setup-verify/verify-setup.sh
 chmod +x /usr/local/monitoring/setup-verify/verify-setup.sh
 
 # Download and setup verification service
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/scripts/setup/verify-setup.service -O /etc/init.d/verify-setup
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0/scripts/setup/verify-setup.service -O /etc/init.d/verify-setup
 chmod +x /etc/init.d/verify-setup
 /etc/init.d/verify-setup enable
 
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/config/docker-compose.yml -O docker/docker-compose.yml
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0/config/docker-compose.yml -O docker/docker-compose.yml
 chmod 644 docker/docker-compose.yml
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/config/prometheus-config.yml -O docker/prometheus/prometheus-config.yml
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0/config/prometheus-config.yml -O docker/prometheus/prometheus-config.yml
 chmod 644 docker/prometheus/prometheus-config.yml
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/config/loki-config.yml -O docker/loki/loki-config.yml
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0/config/loki-config.yml -O docker/loki/loki-config.yml
 chmod 644 docker/loki/loki-config.yml
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/config/promtail-config.yml -O docker/promtail/promtail-config.yml
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0/config/promtail-config.yml -O docker/promtail/promtail-config.yml
 chmod 644 docker/promtail/promtail-config.yml
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/services/opennds-exporter.py -O exporters/opennds-exporter.py
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0/services/opennds-exporter.py -O exporters/opennds-exporter.py
 chmod 755 exporters/opennds-exporter.py
 
 # Setup OpenNDS exporter service
 echo "Setting up OpenNDS exporter service..."
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/services/opennds-exporter.service -O /etc/init.d/opennds-exporter
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0/services/opennds-exporter.service -O /etc/init.d/opennds-exporter
 chmod +x /usr/local/monitoring/exporters/opennds-exporter.py
 chmod +x /etc/init.d/opennds-exporter
 /etc/init.d/opennds-exporter enable
@@ -141,13 +141,13 @@ echo "Container restart policy set to 'always' - will auto-start after reboot"
 echo "Setting up automatic update system..."
 
 # Download update system components with proper permissions
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/scripts/update/update-checker.py -O /usr/local/monitoring/update-system/update-checker.py
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0/scripts/update/update-checker.py -O /usr/local/monitoring/update-system/update-checker.py
 chmod 755 /usr/local/monitoring/update-system/update-checker.py
 
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/scripts/update/update-checker.service -O /etc/init.d/update-checker
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0/scripts/update/update-checker.service -O /etc/init.d/update-checker
 chmod 755 /etc/init.d/update-checker
 
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/scripts/update/update-executor.sh -O /usr/local/monitoring/update-system/executor.sh
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0/scripts/update/update-executor.sh -O /usr/local/monitoring/update-system/executor.sh
 chmod 755 /usr/local/monitoring/update-system/executor.sh
 
 

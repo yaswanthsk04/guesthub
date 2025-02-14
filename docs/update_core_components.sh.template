@@ -15,8 +15,8 @@
 # - Self-cleans after successful update
 
 # Download new versions to temporary location
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/scripts/update/update-checker.py -O /tmp/checker.py.new
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub_v0.1.0/v0.6.0/scripts/update/update-executor.sh -O /tmp/executor.sh.new
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0/scripts/update/update-checker.py -O /tmp/checker.py.new
+wget https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0/scripts/update/update-executor.sh -O /tmp/executor.sh.new
 
 # Create delayed update script
 cat > /tmp/delayed_update.sh << 'EOF'
