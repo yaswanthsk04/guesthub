@@ -16,13 +16,3 @@ scrape_configs:
         labels:
           job: update_checker
           __path__: /var/log/update-checker.log
-    pipeline_stages:
-      - regex:
-          expression: '^\[(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\].*?(?P<level>INFO|ERROR|WARN|DEBUG).*?(?P<message>.*)$'
-      - labels:
-          level:
-      - timestamp:
-          source: timestamp
-          format: '2006-01-02 15:04:05'
-      - output:
-          source: message
