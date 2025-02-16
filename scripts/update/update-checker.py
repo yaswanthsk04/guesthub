@@ -35,8 +35,7 @@ console_handler.setFormatter(CustomFormatter(datefmt='%Y-%m-%d %H:%M:%S'))
 logger.addHandler(console_handler)
 
 # Configuration
-GITHUB_REPO = "yaswanthsk04/guesthub"
-GITHUB_REF = "v0.6.0"
+GITHUB_RAW_BASE = "https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0"
 LOCAL_BASE_DIR = "/usr/local/monitoring"
 CHECK_INTERVAL = 300  # Check every 5 minutes (safe for GitHub API limits)
 
@@ -94,46 +93,26 @@ def set_permissions(filepath):
         return False
 
 def download_file(github_path, local_path):
-    """Download a file from GitHub using the API"""
-    github_token = os.environ.get("GITHUB_TOKEN")
-    if not github_token:
-        logger.error("GITHUB_TOKEN environment variable not set")
-        return False
-
-    headers = {
-        'Authorization': f'token {github_token}',
-        'Accept': 'application/vnd.github.v3.raw'
-    }
-
-    url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{github_path}?ref={GITHUB_REF}"
-
+    """Download a file from GitHub"""
+    url = f"{GITHUB_RAW_BASE}/{github_path}"
     try:
+        response = requests.get(url)
+        response.raise_for_status()
+        
         # Create parent directories if they don't exist
         os.makedirs(os.path.dirname(local_path), exist_ok=True)
         set_permissions(os.path.dirname(local_path))
         
-        # Download file
-        response = requests.get(url, headers=headers)
-        response.raise_for_status()
-        
-        # Write content to file
-        with open(local_path, 'wb') as f:
-            f.write(response.content)
+        # Save the file
+        with open(local_path, 'w') as f:
+            f.write(response.text)
         
         # Set appropriate permissions
         set_permissions(local_path)
         
-        logger.info(f"Successfully downloaded {github_path} to {local_path}")
         return True
-
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Failed to download {github_path}: {str(e)}")
-        return False
-    except OSError as e:
-        logger.error(f"Failed to write {local_path}: {str(e)}")
-        return False
     except Exception as e:
-        logger.error(f"Unexpected error downloading {github_path}: {str(e)}")
+        logger.error(f"Error downloading {github_path}: {e}")
         return False
 
 def update_metrics(component, success):
@@ -153,17 +132,10 @@ def check_core_files():
     for github_path in UPDATE_ORDER:
         local_path = CORE_FILES[github_path]
         try:
-            # Get remote content using GitHub API
-            headers = {
-                'Authorization': f'token {os.environ.get("GITHUB_TOKEN")}',
-                'Accept': 'application/vnd.github.v3.raw'
-            }
-            response = requests.get(
-                f"https://api.github.com/repos/{GITHUB_REPO}/contents/{github_path}?ref={GITHUB_REF}",
-                headers=headers
-            )
+            # Get remote content
+            response = requests.get(f"{GITHUB_RAW_BASE}/{github_path}")
             response.raise_for_status()
-            remote_content = response.content.decode('utf-8')
+            remote_content = response.text
             
             # Compare with local content
             try:
@@ -258,12 +230,8 @@ def get_remote_updates():
     """Get list of update files from GitHub"""
     try:
         # Using GitHub API to list directory contents
-        api_url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/updates?ref={GITHUB_REF}"
-        headers = {
-            'Authorization': f'token {os.environ.get("GITHUB_TOKEN")}',
-            'Accept': 'application/vnd.github.v3.raw'
-        }
-        response = requests.get(api_url, headers=headers)
+        api_url = "https://api.github.com/repos/yaswanthsk04/guesthub/contents/updates"
+        response = requests.get(api_url)
         
         # If directory doesn't exist, no updates available
         if response.status_code == 404:
