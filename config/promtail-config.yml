@@ -18,16 +18,11 @@ scrape_configs:
           __path__: /var/log/update-checker.log
     pipeline_stages:
       - regex:
-          expression: '^(?:\[(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\] (?:update-checker|update-executor): (?P<level>\w+) - (?P<message>.*)|(?P<docker_message>Docker compose:.*)|\[(?P<timestamp2>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\] (?:update-executor): (?P<level2>\w+) - (?P<message2>.*))$'
+          expression: '^\[(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\].*?(?P<level>INFO|ERROR|WARN|DEBUG).*?(?P<message>.*)$'
       - labels:
           level:
       - timestamp:
           source: timestamp
           format: '2006-01-02 15:04:05'
-      - timestamp:
-          source: timestamp2
-          format: '2006-01-02 15:04:05'
       - output:
           source: message
-          fallback_to: docker_message
-          fallback_to: message2
