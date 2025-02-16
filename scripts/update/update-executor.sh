@@ -62,9 +62,9 @@ handle_docker_compose() {
     log_message "INFO" "Updating docker-compose.yml file..."
     cp "$file" docker-compose.yml
     
-    # Start services
+    # Start services with environment variables
     log_message "INFO" "Starting Docker services..."
-    docker-compose up -d
+    source /etc/guesthub-env.sh && docker-compose up -d
     
     # Verify services are running
     if docker-compose ps | grep -q "Up"; then
@@ -98,9 +98,9 @@ handle_loki() {
     cp "$file" loki/loki-config.yml
     chmod 644 loki/loki-config.yml
     
-    # Start all services
+    # Start all services with environment variables
     log_message "INFO" "Starting Docker services..."
-    docker-compose up -d
+    source /etc/guesthub-env.sh && docker-compose up -d
     
     # Verify services are running
     if docker-compose ps | grep -q "Up"; then
@@ -309,9 +309,9 @@ handle_docker_batch() {
         fi
     done
     
-    # Start services once after all updates
+    # Start services once after all updates with environment variables
     log_message "INFO" "Starting Docker services..."
-    docker-compose up -d
+    source /etc/guesthub-env.sh && docker-compose up -d
     
     # Verify services
     if docker-compose ps | grep -q "Up"; then
