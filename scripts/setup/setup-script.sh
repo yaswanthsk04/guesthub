@@ -8,20 +8,6 @@ uci commit system
 /etc/init.d/system restart
 sleep 10  # Wait for system to stabilize
 
-# Configure DHCP settings
-uci set dhcp.lan.start='11'       
-uci set dhcp.lan.limit='500'      
-   
-uci add dhcp host
-uci set dhcp.@host[-1].mac='5C:A6:E6:D8:CC:B2'   
-uci set dhcp.@host[-1].ip='192.168.98.2'         
-uci set dhcp.@host[-1].name='AP1-TP-LINK'    
-uci commit dhcp
-
-service network restart
-service dnsmasq restart
-sleep 10  # Wait for network to stabilize
-
 # Enable and restart WiFi
 uci set wireless.radio0.disabled=0
 wifi reload
