@@ -140,11 +140,17 @@ fi
 
 echo -e "${GREEN}✓ Environment variables configured successfully${NC}\n"
 
+uci set luci.main.lang='en'
+uci commit luci
+/etc/init.d/uhttpd restart
+
 uci set system.@system[0].timezone='CET-1CEST,M3.5.0,M10.5.0/3'
 uci set system.@system[0].zonename='Europe/Berlin'
 uci commit system
 /etc/init.d/system restart
 sleep 10  # Wait for system to stabilize
+
+echo -e "${GREEN}✓ System Settings configured successfully${NC}\n"
 
 echo -e "\n${BOLD}${BLUE}=== WiFi Configuration ===${NC}\n"
 
@@ -325,6 +331,7 @@ uci set opennds.@opennds[0].debuglevel='3'
 uci set opennds.@opennds[0].fasremoteip="${FAS_REMOTE_IP}"
 uci set opennds.@opennds[0].fasport='80'
 uci set opennds.@opennds[0].faspath="${FAS_PATH}"
+uci set opennds.@opennds[0].maxclients='500'
 uci commit opennds
 service opennds enable
 service opennds start
