@@ -35,7 +35,12 @@ console_handler.setFormatter(CustomFormatter(datefmt='%Y-%m-%d %H:%M:%S'))
 logger.addHandler(console_handler)
 
 # Configuration
-GITHUB_RAW_BASE = "https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0"
+branch_version = os.environ.get('GUESTHUB_BRANCH_VERSION')
+if not branch_version:
+    logger.error("GUESTHUB_BRANCH_VERSION environment variable is not set")
+    raise ValueError("GUESTHUB_BRANCH_VERSION environment variable is required")
+
+GITHUB_RAW_BASE = f"https://raw.githubusercontent.com/yaswanthsk04/guesthub/{branch_version}"
 LOCAL_BASE_DIR = "/usr/local/monitoring"
 CHECK_INTERVAL = 300  # Check every 5 minutes (safe for GitHub API limits)
 
@@ -230,7 +235,7 @@ def get_remote_updates():
     """Get list of update files from GitHub"""
     try:
         # Using GitHub API to list directory contents
-        api_url = "https://api.github.com/repos/yaswanthsk04/guesthub/contents/updates?ref=v0.6.0"
+        api_url = f"https://api.github.com/repos/yaswanthsk04/guesthub/contents/updates?ref={branch_version}"
         response = requests.get(api_url)
         
         # If directory doesn't exist, no updates available

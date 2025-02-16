@@ -11,23 +11,40 @@ WHITE='\033[1;37m'
 NC='\033[0m' # No Color
 BOLD='\033[1m'
 
-# Print logo and text side by side
-echo -e "${CORAL}@@@@@@                      ${WHITE}@@@@@@@@@                                                               @@@@                             @@@                     
-${CORAL}@@@@@@@@@@                        ${WHITE}@@@@@@@@@@@@@@                                                      @@     @@@@                             @@@                     
-${CORAL}@@@@@@@@@@                        ${WHITE}@@@@@     @@@@@@                                                   @@@@    @@@@                             @@@                     
-${CORAL}@@@@@               @@@@@@        ${WHITE}@@@@          @@@@    @@@      @@@       @@@@@          @@@@@     @@@@@@@  @@@@  @@@@@      @@@      @@@    @@@  @@@@@              
-${CORAL}@@@@@                 @@@@@@      ${WHITE}@@@@                  @@@@     @@@@    @@@@@@@@@@     @@@@@@@@@@ @@@@@@@@@ @@@@@@@@@@@@@   @@@@      @@@@   @@@@@@@@@@@@@           
-${CORAL}@@@@@        @@@@       @@@@@     ${WHITE}@@@@       @@@@@@@@   @@@@     @@@@  @@@@      @@@@  @@@     @@@   @@@@    @@@@@     @@@@  @@@@      @@@@   @@@@     @@@@@          
-${CORAL}@@@       @@@@@@@@      @@@@      ${WHITE}@@@@       @@@@@@@@   @@@@     @@@@  @@@@@@@@@@@@@@  @@@@@@        @@@@    @@@@      @@@@  @@@@      @@@@   @@@        @@@          
-${CORAL}@       @@@@@@@@@@       @        ${WHITE}@@@@            @@@   @@@@     @@@@  @@@@@@@@@@@@@@   @@@@@@@@@@   @@@@    @@@@      @@@@  @@@@      @@@@   @@@        @@@          
-${CORAL}       @@@@@@@@@@@                ${WHITE}@@@@          @@@@    @@@@     @@@@  @@@                    @@@@@  @@@@    @@@@      @@@@  @@@@      @@@@   @@@       @@@@          
-${CORAL}@@@      @@@@@@@@@@      @@       ${WHITE} @@@@@    @@@@@@@     @@@@     @@@@   @@@@    @@@@  @@@@     @@@@   @@@@   @@@@      @@@@   @@@@    @@@@@   @@@@@    @@@@           
-${CORAL}@@@@@      @@@@@@@       @@@@     ${WHITE}  @@@@@@@@@@@@@       @@@@@@@@@@@@    @@@@@@@@@@    @@@@@@@@@@      @@@@   @@@@      @@@@    @@@@@@@@@@@@   @@@@@@@@@@@@            
-${CORAL}@@@@@@                  @@@@@      
-${CORAL}@@@@@@                @@@@@        
-${CORAL}@@@@@    @@@@@@    @@@@           
-${CORAL}      @@@@@@@@@@                   
-${CORAL}      @@@@@@@@@@                   "
+# Print logo
+echo -e "${CORAL}"
+cat << "EOF"
+                                                                                                @@@@@@                          
+                                                                                              @@@@@@@@@@                        
+                                                                                              @@@@@@@@@@                        
+                                                                                      @@@@@               @@@@@@                
+                                                                                     @@@@@                 @@@@@@               
+                                                                                    @@@@@        @@@@       @@@@@              
+                                                                                     @@@       @@@@@@@@      @@@@              
+                                                                                      @       @@@@@@@@@@       @               
+                                                                                             @@@@@@@@@@@                       
+                                                                                     @@@      @@@@@@@@@@      @@               
+                                                                                    @@@@@      @@@@@@@       @@@@              
+                                                                                    @@@@@@                  @@@@@               
+                                                                                     @@@@@@                @@@@@                
+                                                                                       @@@@@    @@@@@@    @@@@                 
+                                                                                              @@@@@@@@@@                        
+                                                                                              @@@@@@@@@@                        
+EOF
+echo -e "${WHITE}"
+cat << "EOF"
+                                                @@@                                                                 @@@@                             @@@                     
+                                           @@@@@@@@@@@@                                                     @@     @@@@                             @@@                     
+                                          @@@@@     @@@@@@                                                  @@@@    @@@@                             @@@                     
+                                         @@@@          @@@@    @@@      @@@       @@@@@          @@@@@     @@@@@@@  @@@@  @@@@@      @@@      @@@    @@@  @@@@@              
+                                        @@@@                  @@@@      @@@@    @@@@@@@@@@     @@@@@@@@@@ @@@@@@@@@ @@@@@@@@@@@@@   @@@@      @@@@   @@@@@@@@@@@@@           
+                                        @@@@       @@@@@@@@   @@@@      @@@@  @@@@      @@@@  @@@     @@@   @@@@    @@@@@     @@@@  @@@@      @@@@   @@@@     @@@@@          
+                                        @@@@       @@@@@@@@   @@@@      @@@@  @@@@@@@@@@@@@@  @@@@@@        @@@@    @@@@      @@@@  @@@@      @@@@   @@@        @@@          
+                                         @@@@            @@@   @@@@      @@@@  @@@@@@@@@@@@@@   @@@@@@@@@@   @@@@    @@@@      @@@@  @@@@      @@@@   @@@        @@@          
+                                          @@@@          @@@@   @@@@      @@@@  @@@                    @@@@@  @@@@    @@@@      @@@@  @@@@      @@@@   @@@       @@@@          
+                                           @@@@@@    @@@@@@@    @@@@    @@@@@   @@@@    @@@@  @@@@     @@@@   @@@@   @@@@      @@@@   @@@@    @@@@@   @@@@@    @@@@           
+                                              @@@@@@@@@@@ @@@     @@@@@@@@@@@@    @@@@@@@@@@    @@@@@@@@@@     @@@@@@ @@@@      @@@@    @@@@@@@@@@@@   @@@@@@@@@@@@            
+EOF
 echo -e "${NC}"
 
 echo -e "\n${BOLD}${CYAN}Welcome to GuestHub Setup${NC}\n"
@@ -35,6 +52,17 @@ echo -e "\n${BOLD}${CYAN}Welcome to GuestHub Setup${NC}\n"
 echo -e "${BOLD}${BLUE}=== Configuration Settings ===${NC}\n"
 
 echo -e "${CYAN}The following settings are required for GuestHub to function properly.${NC}\n"
+
+# Collect GuestHub branch version
+echo -e "${YELLOW}Enter GuestHub branch version: ${NC}"
+read guesthub_branch_version
+if [ -z "$guesthub_branch_version" ]; then
+    echo -e "${RED}Error: GuestHub branch version is required${NC}"
+    exit 1
+fi
+
+# Base URL for GitHub raw content
+GITHUB_RAW_URL="https://raw.githubusercontent.com/yaswanthsk04/guesthub/$guesthub_branch_version"
 
 # Collect Tailscale settings
 echo -e "${YELLOW}Enter Tailscale auth key: ${NC}"
@@ -83,6 +111,7 @@ fi
 
 # Export all variables for immediate use
 echo -e "\n${CYAN}Setting up environment variables...${NC}"
+export GUESTHUB_BRANCH_VERSION="$guesthub_branch_version"
 export TAILSCALE_AUTH_KEY="$tailscale_key"
 export FAS_KEY="$fas_key"
 export FAS_REMOTE_IP="$fas_remote_ip"
@@ -93,6 +122,7 @@ export GF_SECURITY_ADMIN_PASSWORD="$grafana_password"
 # Create persistent environment file
 echo -e "${CYAN}Creating persistent environment configuration...${NC}"
 cat > /etc/guesthub-env.sh << EOF
+export GUESTHUB_BRANCH_VERSION="$guesthub_branch_version"
 export TAILSCALE_AUTH_KEY="$tailscale_key"
 export FAS_KEY="$fas_key"
 export FAS_REMOTE_IP="$fas_remote_ip"
@@ -208,41 +238,41 @@ mkdir -p docker/grafana/provisioning/dashboards
 chmod -R 755 docker/grafana
 
 echo -e "${CYAN}Downloading Grafana configurations...${NC}"
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0/config/grafana/provisioning/datasources/datasource.yml -O docker/grafana/provisioning/datasources/datasource.yml
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0/config/grafana/provisioning/dashboards/dashboard.yml -O docker/grafana/provisioning/dashboards/dashboard.yml
+wget "$GITHUB_RAW_URL/config/grafana/provisioning/datasources/datasource.yml" -O docker/grafana/provisioning/datasources/datasource.yml
+wget "$GITHUB_RAW_URL/config/grafana/provisioning/dashboards/dashboard.yml" -O docker/grafana/provisioning/dashboards/dashboard.yml
 chmod 644 docker/grafana/provisioning/datasources/datasource.yml
 chmod 644 docker/grafana/provisioning/dashboards/dashboard.yml
 echo -e "${GREEN}✓ Grafana configurations downloaded${NC}\n"
 
 echo -e "${CYAN}Downloading Grafana dashboards...${NC}"
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0/dashboard/update_status_dashboard.json -O docker/grafana/provisioning/dashboards/update_status_dashboard.json
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0/dashboard/system_dashboard.json -O docker/grafana/provisioning/dashboards/system_dashboard.json
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0/dashboard/network_dashboard_v3.json -O docker/grafana/provisioning/dashboards/network_dashboard_v3.json
+wget "$GITHUB_RAW_URL/dashboard/update_status_dashboard.json" -O docker/grafana/provisioning/dashboards/update_status_dashboard.json
+wget "$GITHUB_RAW_URL/dashboard/system_dashboard.json" -O docker/grafana/provisioning/dashboards/system_dashboard.json
+wget "$GITHUB_RAW_URL/dashboard/network_dashboard_v3.json" -O docker/grafana/provisioning/dashboards/network_dashboard_v3.json
 chmod 644 docker/grafana/provisioning/dashboards/*.json
 
 # Download and setup verification script
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0/scripts/setup/verify-setup.sh -O /usr/local/monitoring/setup-verify/verify-setup.sh
+wget "$GITHUB_RAW_URL/scripts/setup/verify-setup.sh" -O /usr/local/monitoring/setup-verify/verify-setup.sh
 chmod +x /usr/local/monitoring/setup-verify/verify-setup.sh
 
 # Download and setup verification service
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0/scripts/setup/verify-setup.service -O /etc/init.d/verify-setup
+wget "$GITHUB_RAW_URL/scripts/setup/verify-setup.service" -O /etc/init.d/verify-setup
 chmod +x /etc/init.d/verify-setup
 /etc/init.d/verify-setup enable
 
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0/config/docker-compose.yml -O docker/docker-compose.yml
+wget "$GITHUB_RAW_URL/config/docker-compose.yml" -O docker/docker-compose.yml
 chmod 644 docker/docker-compose.yml
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0/config/prometheus-config.yml -O docker/prometheus/prometheus-config.yml
+wget "$GITHUB_RAW_URL/config/prometheus-config.yml" -O docker/prometheus/prometheus-config.yml
 chmod 644 docker/prometheus/prometheus-config.yml
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0/config/loki-config.yml -O docker/loki/loki-config.yml
+wget "$GITHUB_RAW_URL/config/loki-config.yml" -O docker/loki/loki-config.yml
 chmod 644 docker/loki/loki-config.yml
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0/config/promtail-config.yml -O docker/promtail/promtail-config.yml
+wget "$GITHUB_RAW_URL/config/promtail-config.yml" -O docker/promtail/promtail-config.yml
 chmod 644 docker/promtail/promtail-config.yml
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0/services/opennds-exporter.py -O exporters/opennds-exporter.py
+wget "$GITHUB_RAW_URL/services/opennds-exporter.py" -O exporters/opennds-exporter.py
 chmod 755 exporters/opennds-exporter.py
 
 echo -e "\n${BOLD}${BLUE}=== Setting Up Monitoring Services ===${NC}\n"
 echo -e "${CYAN}Configuring OpenNDS exporter...${NC}"
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0/services/opennds-exporter.service -O /etc/init.d/opennds-exporter
+wget "$GITHUB_RAW_URL/services/opennds-exporter.service" -O /etc/init.d/opennds-exporter
 chmod +x /usr/local/monitoring/exporters/opennds-exporter.py
 chmod +x /etc/init.d/opennds-exporter
 /etc/init.d/opennds-exporter enable
@@ -271,13 +301,13 @@ echo -e "${BOLD}${BLUE}=== Configuring Update System ===${NC}\n"
 echo -e "${CYAN}Setting up automatic update checker...${NC}"
 
 # Download update system components with proper permissions
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0/scripts/update/update-checker.py -O /usr/local/monitoring/update-system/update-checker.py
+wget "$GITHUB_RAW_URL/scripts/update/update-checker.py" -O /usr/local/monitoring/update-system/update-checker.py
 chmod 755 /usr/local/monitoring/update-system/update-checker.py
 
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0/scripts/update/update-checker.service -O /etc/init.d/update-checker
+wget "$GITHUB_RAW_URL/scripts/update/update-checker.service" -O /etc/init.d/update-checker
 chmod 755 /etc/init.d/update-checker
 
-wget https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0/scripts/update/update-executor.sh -O /usr/local/monitoring/update-system/executor.sh
+wget "$GITHUB_RAW_URL/scripts/update/update-executor.sh" -O /usr/local/monitoring/update-system/executor.sh
 chmod 755 /usr/local/monitoring/update-system/executor.sh
 
 
