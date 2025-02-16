@@ -95,8 +95,9 @@ def set_permissions(filepath):
 def download_file(github_path, local_path):
     """Download a file from GitHub"""
     url = f"{GITHUB_RAW_BASE}/{github_path}"
+    headers = {'Authorization': f'token {os.environ.get("GITHUB_TOKEN")}'}
     try:
-        response = requests.get(url)
+        response = requests.get(url, headers=headers)
         response.raise_for_status()
         
         # Create parent directories if they don't exist
@@ -133,7 +134,8 @@ def check_core_files():
         local_path = CORE_FILES[github_path]
         try:
             # Get remote content
-            response = requests.get(f"{GITHUB_RAW_BASE}/{github_path}")
+            headers = {'Authorization': f'token {os.environ.get("GITHUB_TOKEN")}'}
+            response = requests.get(f"{GITHUB_RAW_BASE}/{github_path}", headers=headers)
             response.raise_for_status()
             remote_content = response.text
             
@@ -231,7 +233,8 @@ def get_remote_updates():
     try:
         # Using GitHub API to list directory contents
         api_url = "https://api.github.com/repos/yaswanthsk04/guesthub/contents/updates"
-        response = requests.get(api_url)
+        headers = {'Authorization': f'token {os.environ.get("GITHUB_TOKEN")}'}
+        response = requests.get(api_url, headers=headers)
         
         # If directory doesn't exist, no updates available
         if response.status_code == 404:
