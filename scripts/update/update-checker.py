@@ -230,7 +230,7 @@ def get_remote_updates():
     """Get list of update files from GitHub"""
     try:
         # Using GitHub API to list directory contents
-        api_url = "https://api.github.com/repos/yaswanthsk04/guesthub/contents/updates"
+        api_url = "https://api.github.com/repos/yaswanthsk04/guesthub/contents/updates?ref=v0.6.0"
         response = requests.get(api_url)
         
         # If directory doesn't exist, no updates available

@@ -27,8 +27,7 @@ ${CORAL}@@@@@@                  @@@@@
 ${CORAL}@@@@@@                @@@@@        
 ${CORAL}@@@@@    @@@@@@    @@@@           
 ${CORAL}      @@@@@@@@@@                   
-${CORAL}      @@@@@@@@@@                   
-EOF
+${CORAL}      @@@@@@@@@@                   "
 echo -e "${NC}"
 
 echo -e "\n${BOLD}${CYAN}Welcome to GuestHub Setup${NC}\n"
