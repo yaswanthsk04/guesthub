@@ -308,9 +308,9 @@ def cleanup_temp_files():
                 logger.error(f"Failed to clean up {new_file}: {e}")
 
 def main():
-    logger.info("********************************")
-    logger.info("Update checker starting - Version 0.1.0 - TEST UPDATE")
-    logger.info("********************************")
+    logger.info("***********************")
+    logger.info("Update checker starting")
+    logger.info("***********************")
     
     # Start Prometheus metrics server
     start_http_server(9300)
