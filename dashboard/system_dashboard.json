@@ -7337,7 +7337,7 @@
     ]
   },
   "timezone": "browser",
-  "title": "OpenWRT",
+  "title": "Guesthub System Monitor",
   "version": 49,
   "description": "Dashboard for OpenWRT routers with installed lua scripts."
 }
