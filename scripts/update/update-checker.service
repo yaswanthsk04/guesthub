@@ -12,10 +12,11 @@ start_service() {
     chmod 644 $LOG_FILE
     chown root:root $LOG_FILE
 
-    procd_open_instance
-    # Source environment variables
+    # Source the environment file first
     . /etc/guesthub-env.sh
-    procd_set_param command $PYTHON $PROG
+    
+    procd_open_instance
+    procd_set_param command env - GUESTHUB_BRANCH_VERSION="$GUESTHUB_BRANCH_VERSION" GF_SECURITY_ADMIN_USER="$GF_SECURITY_ADMIN_USER" GF_SECURITY_ADMIN_PASSWORD="$GF_SECURITY_ADMIN_PASSWORD" $PYTHON $PROG
     procd_set_param stdout 1
     procd_set_param stderr 1
     procd_set_param respawn
