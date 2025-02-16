@@ -46,12 +46,13 @@ services:
     image: grafana/promtail:latest
     container_name: promtail
     volumes:
-      - /var/log:/var/log
+      - /var/log:/var/log:ro
       - ./promtail/promtail-config.yml:/etc/promtail/promtail-config.yml
     command: -config.file=/etc/promtail/promtail-config.yml
     networks:
       - monitoring
     restart: always
+    user: root  # This ensures Promtail has access to read log files
 
 networks:
   monitoring:
