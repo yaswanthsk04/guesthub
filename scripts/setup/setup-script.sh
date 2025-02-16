@@ -82,8 +82,8 @@ chmod 644 docker/grafana/provisioning/dashboards/dashboard.yml
 # Download Grafana dashboards
 echo "Downloading Grafana dashboards..."
 curl -H "Authorization: token ${GITHUB_TOKEN}" -L -o docker/grafana/provisioning/dashboards/update_status_dashboard.json "https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0/dashboard/update_status_dashboard.json"
-curl -H "Authorization: token ${GITHUB_TOKEN}" -L -o docker/grafana/provisioning/dashboards/system_dashboard.json "https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0/dashboard/System_Dashboard.json"
-curl -H "Authorization: token ${GITHUB_TOKEN}" -L -o docker/grafana/provisioning/dashboards/Network_dashboard_v3.json "https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0/dashboard/Network_dashboard_v3.json"
+curl -H "Authorization: token ${GITHUB_TOKEN}" -L -o docker/grafana/provisioning/dashboards/system_dashboard.json "https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0/dashboard/system_dashboard.json"
+curl -H "Authorization: token ${GITHUB_TOKEN}" -L -o docker/grafana/provisioning/dashboards/network_dashboard_v3.json "https://raw.githubusercontent.com/yaswanthsk04/guesthub/v0.6.0/dashboard/network_dashboard_v3.json"
 chmod 644 docker/grafana/provisioning/dashboards/*.json
 
 # Download and setup verification script
